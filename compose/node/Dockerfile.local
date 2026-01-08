@@ -1,0 +1,24 @@
+FROM node:22.12-alpine
+
+RUN apk update && apk add --no-cache git \
+  openssh-client
+
+RUN addgroup -g 1001 app && \
+  adduser -u 1001 -G app -h /home/app -D app
+
+
+ENV HOME=/home/app
+
+COPY backend/package*.json $HOME/backend-template/
+
+WORKDIR $HOME/backend-template
+
+RUN mkdir -p ~/.ssh && chmod 700 ~/.ssh && \
+    ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
+
+RUN --mount=type=ssh,uid=1001 \
+  npm install
+
+RUN chown -R app:app $HOME
+
+USER app
