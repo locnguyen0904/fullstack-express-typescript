@@ -1,11 +1,18 @@
-import Joi from 'joi';
+import { z } from 'zod';
+import { registry } from '@/config/openapi.config';
 
-export const createExampleSchema = Joi.object({
-  title: Joi.string().required(),
-  content: Joi.string().required(),
-});
+export const createExampleSchema = registry.register(
+  'CreateExample',
+  z.object({
+    title: z.string().openapi({ example: 'My Example Title' }),
+    content: z.string().openapi({ example: 'This is the content.' }),
+  })
+);
 
-export const updateExampleSchema = Joi.object({
-  title: Joi.string().optional(),
-  content: Joi.string().optional(),
-});
+export const updateExampleSchema = registry.register(
+  'UpdateExample',
+  z.object({
+    title: z.string().optional().openapi({ example: 'Updated Title' }),
+    content: z.string().optional().openapi({ example: 'Updated content.' }),
+  })
+);

@@ -1,19 +1,21 @@
-FROM node:22.12.0-alpine3.21
+FROM node:22.12-alpine
 
-RUN addgroup -S app && adduser -S app -G app
+# Set working directory
+WORKDIR /home/app/client
 
-ENV HOME=/home/app
+# Create non-root user and set permissions
+RUN addgroup -g 1001 app && \
+    adduser -u 1001 -G app -h /home/app -D app && \
+    chown -R app:app /home/app
 
-COPY frontend/package.json frontend/yarn.lock $HOME/client/
-
-RUN mkdir $HOME/client/build
-
-RUN chown -R app:app $HOME/*
-
+# Switch to non-root user
 USER app
 
-WORKDIR $HOME/client
+# Copy package files
+COPY --chown=app:app frontend/package.json frontend/yarn.lock ./
 
-RUN yarn install
+# Install dependencies
+RUN yarn install --frozen-lockfile
 
+# Command to run the development server
 CMD ["yarn", "dev"]
