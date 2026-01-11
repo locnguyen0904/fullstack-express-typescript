@@ -1,78 +1,85 @@
-version: "3"
-
 volumes:
-  mongo_data: {}
-  frontend: {}
-  backend_node_module: {}
-  frontend_node_module: {}
+  mongo_data:
+  backend_node_modules:
+  frontend_node_modules:
 
 networks:
   app-network:
     driver: bridge
 
 services:
-  backend:
-    restart: always
-    container_name: backend-template_node_local
-    build:
-      context: .
-      ssh:
-        - default
-      dockerfile: compose/node/Dockerfile.local
-    # command: nodemon --inspect=0.0.0.0:9229 --nolazy app.js
-    ports:
-      - "3000:3000"
-      - "9229:9229"
-    env_file:
-      - .env
-    command: sh -c "npm run dev"
-    volumes:
-      - ./backend:/home/app/backend-template
-      - backend_node_module:/home/app/backend-template/node_modules
-      - frontend:/home/app/backend-template/src/client/build
-    depends_on:
-      - mongo
-      - redis
-    networks:
-      - app-network
-
-  frontend:
-    restart: always
-    container_name: backend-template_client_local
-    build:
-      context: .
-      dockerfile: compose/client/Dockerfile
-    ports:
-      - "3001:3000"
-    env_file:
-      - .env
-    volumes:
-      - ./frontend:/home/app/client
-      - frontend_node_module:/home/app/client/node_modules
-      - frontend:/home/app/client/build
-    depends_on:
-      - backend
-    networks:
-      - app-network
-    stdin_open: true
-
   mongo:
     image: mongo:8.0
-    container_name: backend-template_mongo_local
-    env_file:
-      - .env
-    command: mongod --port 27017 --storageEngine wiredTiger
+    container_name: backend-template_mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_DATABASE=backend-template
     volumes:
       - mongo_data:/data/db
     ports:
       - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 
   redis:
     image: redis:6.2.13-alpine
-    container_name: backend-template_redis_local
+    container_name: backend-template_redis
+    restart: always
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: compose/node/Dockerfile.local
+    container_name: backend-template_backend
+    restart: always
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mongodb://mongo:27017/backend-template
+      - PORT=3000
+    volumes:
+      - ./backend:/home/app/backend-template
+      - backend_node_modules:/home/app/backend-template/node_modules
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: compose/client/Dockerfile
+    container_name: backend-template_frontend
+    restart: always
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend:/home/app/client
+      - frontend_node_modules:/home/app/client/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    stdin_open: true
+    tty: true

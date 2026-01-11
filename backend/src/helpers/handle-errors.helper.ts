@@ -1,4 +1,4 @@
-import { isCelebrateError, Segments, CelebrateError } from 'celebrate';
+import { ZodError } from 'zod';
 import { Response as ExpressResponse, NextFunction, Request } from 'express';
 import mongoose from 'mongoose';
 
@@ -9,32 +9,17 @@ import {
   NotFoundError,
 } from '@/core/response-error.core';
 
-const getCelebrateError = (
-  error: CelebrateError
+const getZodError = (
+  error: ZodError
 ): {
   message: string;
   code: string;
   details: { message: string; code: string }[];
 } => {
-  const details: { message: string; code: string }[] = [];
-  const segments = [
-    Segments.BODY,
-    Segments.HEADERS,
-    Segments.QUERY,
-    Segments.PARAMS,
-  ];
-
-  for (const segment of segments) {
-    const errorDetails = error.details.get(segment);
-    if (errorDetails) {
-      details.push(
-        ...errorDetails.details.map(({ message, type }) => ({
-          message: message.replace(/['"]/g, ''),
-          code: type,
-        }))
-      );
-    }
-  }
+  const details = error.issues.map((issue) => ({
+    message: `${issue.path.join('.')}: ${issue.message}`,
+    code: issue.code,
+  }));
 
   return {
     message: 'Invalid request data. Please review the request and try again.',
@@ -57,9 +42,9 @@ export const errorHandle = (
     return;
   }
 
-  if (isCelebrateError(error)) {
-    const celebrateError = getCelebrateError(error);
-    Response.error(res, celebrateError, 400);
+  if (error instanceof ZodError) {
+    const zodError = getZodError(error);
+    Response.error(res, zodError, 400);
     return;
   }
 

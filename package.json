@@ -1,0 +1,21 @@
+{
+  "name": "backend-template",
+  "version": "1.0.0",
+  "description": "Fullstack Backend Template",
+  "scripts": {
+    "prepare": "husky",
+    "backend:install": "cd backend && npm install",
+    "backend:build": "cd backend && npm run build",
+    "backend:test": "cd backend && npm test",
+    "backend:lint": "cd backend && npm run lint",
+    "frontend:install": "cd frontend && yarn install",
+    "frontend:build": "cd frontend && npm run build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "husky": "^9.1.7"
+  }
+}

@@ -1,0 +1,1 @@
+npm run backend:lint && npm run backend:test

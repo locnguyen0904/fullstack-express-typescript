@@ -22,5 +22,5 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/no-require-imports': 'off',
   },
-  ignorePatterns: ['.eslintrc.js', 'node_modules', 'dist'],
+  ignorePatterns: ['.eslintrc.js', 'jest.config.js', 'node_modules', 'dist'],
 };
