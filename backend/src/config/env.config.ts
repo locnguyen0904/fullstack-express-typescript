@@ -8,11 +8,21 @@ interface IDatabaseConfig {
 
 interface IJwtConfig {
   secret: string;
+  accessExpirationMinutes: number;
+  refreshExpirationDays: number;
+}
+
+interface IAdminConfig {
+  name: string;
+  email: string;
+  password?: string;
 }
 
 interface IConfig {
   mongodb: IDatabaseConfig;
   jwt: IJwtConfig;
+  admin: IAdminConfig;
+  env: string;
 }
 
 const config: IConfig = {
@@ -21,7 +31,17 @@ const config: IConfig = {
   },
   jwt: {
     secret: process.env.JWT_SECRET as string,
+    accessExpirationMinutes:
+      Number(process.env.JWT_ACCESS_EXPIRATION_MINUTES) || 30,
+    refreshExpirationDays:
+      Number(process.env.JWT_REFRESH_EXPIRATION_DAYS) || 30,
   },
+  admin: {
+    name: process.env.ADMIN_NAME || 'Super Admin',
+    email: process.env.ADMIN_EMAIL || 'admin@example.com',
+    password: process.env.ADMIN_PASSWORD || 'password123',
+  },
+  env: process.env.NODE_ENV || 'development',
 };
 
 export default config;

@@ -12,10 +12,10 @@ RUN addgroup -g 1001 app && \
 USER app
 
 # Copy package files
-COPY --chown=app:app frontend/package.json frontend/yarn.lock ./
+COPY --chown=app:app frontend/package.json frontend/package-lock.json ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile
+RUN npm ci
 
 # Command to run the development server
-CMD ["yarn", "dev"]
+CMD ["npm", "run", "dev"]

@@ -1,6 +1,6 @@
 import { registry } from '@/config/openapi.config';
 import { z } from 'zod';
-import { createExampleSchema, updateExampleSchema } from './example.validation';
+import { createUserSchema, updateUserSchema } from './user.validation';
 import { idParamSchema } from '@/common/validation/params.validation';
 
 const bearerAuth = registry.registerComponent('securitySchemes', 'bearerAuth', {
@@ -11,19 +11,29 @@ const bearerAuth = registry.registerComponent('securitySchemes', 'bearerAuth', {
 
 const security = [{ [bearerAuth.name]: [] }];
 
-// GET /
+const userResponseSchema = z.object({
+  _id: z.string().openapi({ example: '60d0fe4f5311236168a109ca' }),
+  fullName: z.string().openapi({ example: 'John Doe' }),
+  email: z.email().openapi({ example: 'john@example.com' }),
+  role: z.enum(['admin', 'user']).openapi({ example: 'user' }),
+  createdAt: z.string().openapi({ example: '2024-01-01T00:00:00.000Z' }),
+  updatedAt: z.string().openapi({ example: '2024-01-01T00:00:00.000Z' }),
+});
+
+// GET /users
 registry.registerPath({
   method: 'get',
-  path: '/examples',
-  tags: ['Examples'],
-  summary: 'Get all examples',
+  path: '/users',
+  tags: ['Users'],
+  summary: 'Get all users',
+  security,
   responses: {
     200: {
-      description: 'List of examples',
+      description: 'List of users',
       content: {
         'application/json': {
           schema: z.object({
-            data: z.array(createExampleSchema),
+            data: z.array(userResponseSchema),
             total: z.number(),
             page: z.number(),
             pages: z.number(),
@@ -32,128 +42,128 @@ registry.registerPath({
         },
       },
     },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden - Admin only' },
   },
 });
 
-// GET /:id
+// GET /users/:id
 registry.registerPath({
   method: 'get',
-  path: '/examples/{id}',
-  tags: ['Examples'],
-  summary: 'Get an example by ID',
+  path: '/users/{id}',
+  tags: ['Users'],
+  summary: 'Get a user by ID',
+  security,
   request: {
     params: idParamSchema,
   },
   responses: {
     200: {
-      description: 'Example details',
+      description: 'User details',
       content: {
         'application/json': {
           schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
+            data: userResponseSchema,
           }),
         },
       },
     },
-    404: {
-      description: 'Example not found',
-    },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden - Admin only' },
+    404: { description: 'User not found' },
   },
 });
 
-// POST /
+// POST /users
 registry.registerPath({
   method: 'post',
-  path: '/examples',
-  tags: ['Examples'],
-  summary: 'Create a new example',
+  path: '/users',
+  tags: ['Users'],
+  summary: 'Create a new user',
   security,
   request: {
     body: {
       content: {
         'application/json': {
-          schema: createExampleSchema,
+          schema: createUserSchema,
         },
       },
     },
   },
   responses: {
     201: {
-      description: 'Example created successfully',
+      description: 'User created successfully',
       content: {
         'application/json': {
           schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
+            data: userResponseSchema,
           }),
         },
       },
     },
+    400: { description: 'Bad request - Email already taken' },
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden - Admin only' },
   },
 });
 
-// PUT /:id
+// PUT /users/:id
 registry.registerPath({
   method: 'put',
-  path: '/examples/{id}',
-  tags: ['Examples'],
-  summary: 'Update an example',
+  path: '/users/{id}',
+  tags: ['Users'],
+  summary: 'Update a user',
   security,
   request: {
     params: idParamSchema,
     body: {
       content: {
         'application/json': {
-          schema: updateExampleSchema,
+          schema: updateUserSchema,
         },
       },
     },
   },
   responses: {
     200: {
-      description: 'Example updated successfully',
+      description: 'User updated successfully',
       content: {
         'application/json': {
           schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
+            data: userResponseSchema,
           }),
         },
       },
     },
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden - Admin only' },
-    404: {
-      description: 'Example not found',
-    },
+    404: { description: 'User not found' },
   },
 });
 
-// DELETE /:id
+// DELETE /users/:id
 registry.registerPath({
   method: 'delete',
-  path: '/examples/{id}',
-  tags: ['Examples'],
-  summary: 'Delete an example',
+  path: '/users/{id}',
+  tags: ['Users'],
+  summary: 'Delete a user',
   security,
   request: {
     params: idParamSchema,
   },
   responses: {
     200: {
-      description: 'Example deleted successfully',
+      description: 'User deleted successfully',
       content: {
         'application/json': {
           schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
+            data: userResponseSchema,
           }),
         },
       },
     },
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden - Admin only' },
-    404: {
-      description: 'Example not found',
-    },
+    404: { description: 'User not found' },
   },
 });

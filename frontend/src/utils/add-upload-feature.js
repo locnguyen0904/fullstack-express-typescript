@@ -1,4 +1,4 @@
-import tokenProvider from "./tokenProvider";
+import tokenProvider from "./token-provider";
 
 const addUploadFeature = (dataProvider) => ({
   ...dataProvider,
