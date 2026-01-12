@@ -62,21 +62,28 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => ({
       method: "POST",
       body: JSON.stringify(params.data),
     }).then(({ json }) => ({
-      data: { ...params.data, id: json._id },
+      data: { ...json.data, id: json.data._id },
     })),
 
-  update: (resource, params) =>
-    httpClient(`${apiUrl}/${resource}/${params.id}`, {
+  update: (resource, params) => {
+    const { id, _id, ...data } = params.data;
+    return httpClient(`${apiUrl}/${resource}/${params.id}`, {
       method: "PUT",
-      body: JSON.stringify(params.data),
-    }).then(({ json }) => ({ data: { ...json.data, id: json.data._id } })),
+      body: JSON.stringify(data),
+    }).then(({ json }) => ({ data: { ...json.data, id: json.data._id } }));
+  },
 
   updateMany: (resource, params) => {
     return Promise.all(
       params.ids.map((id) =>
         httpClient(`${apiUrl}/${resource}/${id}`, {
           method: "PUT",
-          body: JSON.stringify(params.data),
+          body: JSON.stringify(
+            (() => {
+              const { id: dataId, _id, ...data } = params.data;
+              return data;
+            })(),
+          ),
         }),
       ),
     ).then((responses) => ({

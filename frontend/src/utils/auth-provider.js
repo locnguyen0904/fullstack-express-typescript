@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import tokenProvider from "./tokenProvider";
+import tokenProvider from "./token-provider";
 
 const authProvider = {
   // authentication

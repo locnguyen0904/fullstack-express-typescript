@@ -14,6 +14,8 @@ services:
     restart: always
     environment:
       - MONGO_INITDB_DATABASE=backend-template
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-password123}
     volumes:
       - mongo_data:/data/db
     ports:
@@ -43,16 +45,14 @@ services:
   backend:
     build:
       context: .
-      dockerfile: compose/node/Dockerfile.local
+      dockerfile: compose/backend/Dockerfile
+      target: development
     container_name: backend-template_backend
     restart: always
     ports:
       - "3000:3000"
       - "9229:9229"
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=mongodb://mongo:27017/backend-template
-      - PORT=3000
+    # Environment variables are loaded from backend/.env file (mounted via volume)
     volumes:
       - ./backend:/home/app/backend-template
       - backend_node_modules:/home/app/backend-template/node_modules
@@ -67,7 +67,8 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: compose/client/Dockerfile
+      dockerfile: compose/frontend/Dockerfile
+      target: development
     container_name: backend-template_frontend
     restart: always
     ports:

@@ -1,4 +1,5 @@
 {
   "eslint.workingDirectories": ["./backend", "./frontend"],
-  "cSpell.words": ["astraler", "astralertechnology", "BUILDKIT", "mailgun"]
+  "cSpell.words": ["astraler", "astralertechnology", "BUILDKIT", "mailgun"],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
