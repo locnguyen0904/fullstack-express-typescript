@@ -1,1 +1,2 @@
 npm run backend:lint && npm run backend:test
+npm run frontend:lint && npm run frontend:build

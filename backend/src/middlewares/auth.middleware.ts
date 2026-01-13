@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import config from '@/config/env.config';
-import { UnAuthorizedError, ForbiddenError } from '@/core/response-error.core';
+import { ForbiddenError, UnAuthorizedError } from '@/core/response-error.core';
+import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
 interface TokenPayload {
   sub: string;
