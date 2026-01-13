@@ -5,7 +5,11 @@
 **/.vscode
 **/npm-debug.log
 **/coverage
+# Exclude all .env files except backend/.env (needed for local dev)
 **/.env
+!backend/.env
+.env.prod
+.env.local
 **/.editorconfig
 **/.aws
 **/dist

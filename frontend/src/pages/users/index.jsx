@@ -1,6 +1,6 @@
 import UserIcon from "@mui/icons-material/Group";
-import UserList from "./UserList";
-import UserEdit from "./UserEdit";
+import UserList from "./user-list";
+import UserEdit from "./user-edit";
 
 export default {
   list: UserList,
