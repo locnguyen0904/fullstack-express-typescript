@@ -8,8 +8,9 @@
     "backend:build": "cd backend && npm run build",
     "backend:test": "cd backend && npm test",
     "backend:lint": "cd backend && npm run lint",
-    "frontend:install": "cd frontend && yarn install",
+    "frontend:install": "cd frontend && npm install",
     "frontend:build": "cd frontend && npm run build",
+    "frontend:lint": "cd frontend && npm run lint",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
