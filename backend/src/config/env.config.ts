@@ -18,10 +18,17 @@ interface IAdminConfig {
   password?: string;
 }
 
+interface IFirebaseConfig {
+  projectId: string;
+  clientEmail: string;
+  privateKey: string;
+}
+
 interface IConfig {
   mongodb: IDatabaseConfig;
   jwt: IJwtConfig;
   admin: IAdminConfig;
+  firebase: IFirebaseConfig;
   env: string;
 }
 
@@ -40,6 +47,11 @@ const config: IConfig = {
     name: process.env.ADMIN_NAME || 'Super Admin',
     email: process.env.ADMIN_EMAIL || 'admin@example.com',
     password: process.env.ADMIN_PASSWORD || 'password123',
+  },
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID as string,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL as string,
+    privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
   },
   env: process.env.NODE_ENV || 'development',
 };

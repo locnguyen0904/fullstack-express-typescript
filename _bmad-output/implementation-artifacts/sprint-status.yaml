@@ -1,0 +1,188 @@
+# Sprint Status Tracking
+# Generated: 2026-01-16
+# Project: backend-template
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+generated: 2026-01-16
+project: backend-template
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+epics:
+  epic-1:
+    title: "Infrastructure & Authentication Foundation"
+    status: backlog
+    stories:
+      1-1-project-initialization-docker-setup:
+        status: ready-for-dev
+        title: "Project Initialization & Docker Setup"
+        file: "1-1-project-initialization-docker-setup.md"
+      1-2-firebase-auth-integration-backend:
+        status: ready-for-dev
+        title: "Firebase Auth Integration (Backend)"
+        file: "1-2-firebase-auth-integration-backend.md"
+      1-3-user-onboarding-profile:
+        status: ready-for-dev
+        title: "User Onboarding Profile"
+        file: "1-3-user-onboarding-profile.md"
+      1-4-client-side-login-logout:
+        status: ready-for-dev
+        title: "Client-Side Login & Logout"
+        file: "1-4-client-side-login-logout.md"
+      1-5-user-deletion-data-cleanup:
+        status: ready-for-dev
+        title: "User Deletion & Data Cleanup"
+        file: "1-5-user-deletion-data-cleanup.md"
+    retrospective:
+      status: optional
+      file: "epic-1-retrospective.md"
+
+  epic-2:
+    title: "Core Resume Management (The Editor)"
+    status: backlog
+    stories:
+      2-1-resume-crud-operations:
+        status: ready-for-dev
+        title: "Resume CRUD Operations"
+        file: "2-1-resume-crud-operations.md"
+      2-2-structured-content-editor-backend:
+        status: ready-for-dev
+        title: "Structured Content Editor (Backend)"
+        file: "2-2-structured-content-editor-backend.md"
+      2-3-frontend-editor-ui-state:
+        status: ready-for-dev
+        title: "Frontend Editor UI & State"
+        file: "2-3-frontend-editor-ui-state.md"
+      2-4-live-preview-component:
+        status: ready-for-dev
+        title: "Live Preview Component"
+        file: "2-4-live-preview-component.md"
+      2-5-template-system-foundation:
+        status: ready-for-dev
+        title: "Template System Foundation"
+        file: "2-5-template-system-foundation.md"
+      2-6-resume-lifecycle-management:
+        status: ready-for-dev
+        title: "Resume Lifecycle Management"
+        file: "2-6-resume-lifecycle-management.md"
+    retrospective:
+      status: optional
+      file: "epic-2-retrospective.md"
+
+  epic-3:
+    title: "AI-Assisted Writing & Credits"
+    status: backlog
+    stories:
+      3-1-credit-ledger-balance-system:
+        status: ready-for-dev
+        title: "Credit Ledger & Balance System"
+        file: "3-1-credit-ledger-balance-system.md"
+      3-2-ai-service-integration:
+        status: ready-for-dev
+        title: "AI Service Integration"
+        file: "3-2-ai-service-integration.md"
+      3-3-frontend-ai-interaction:
+        status: ready-for-dev
+        title: "Frontend AI Interaction"
+        file: "3-3-frontend-ai-interaction.md"
+    retrospective:
+      status: optional
+      file: "epic-3-retrospective.md"
+
+  epic-4:
+    title: "Advanced Export & Sharing"
+    status: backlog
+    stories:
+      4-1-async-export-queue-setup:
+        status: ready-for-dev
+        title: "Async Export Queue Setup"
+        file: "4-1-async-export-queue-setup.md"
+      4-2-pdf-rendering-worker:
+        status: ready-for-dev
+        title: "PDF Rendering Worker"
+        file: "4-2-pdf-rendering-worker.md"
+      4-3-public-sharing-link:
+        status: ready-for-dev
+        title: "Public Sharing Link"
+        file: "4-3-public-sharing-link.md"
+    retrospective:
+      status: optional
+      file: "epic-4-retrospective.md"
+
+  epic-5:
+    title: "ATS Optimization & Payments"
+    status: backlog
+    stories:
+      5-1-payment-gateway-integration:
+        status: ready-for-dev
+        title: "Payment Gateway Integration"
+        file: "5-1-payment-gateway-integration.md"
+      5-2-ats-readiness-logic:
+        status: ready-for-dev
+        title: "ATS Readiness Logic"
+        file: "5-2-ats-readiness-logic.md"
+    retrospective:
+      status: optional
+      file: "epic-5-retrospective.md"
+
+  epic-6:
+    title: "Admin Operations"
+    status: backlog
+    stories:
+      6-1-admin-dashboard-implementation:
+        status: ready-for-dev
+        title: "Admin Dashboard Implementation"
+        file: "6-1-admin-dashboard-implementation.md"
+      6-2-credit-pack-management:
+        status: ready-for-dev
+        title: "Credit Pack Management"
+        file: "6-2-credit-pack-management.md"
+    retrospective:
+      status: optional
+      file: "epic-6-retrospective.md"
+
+development_status:
+  1-1-project-initialization-docker-setup: ready-for-dev
+  1-2-firebase-auth-integration-backend: ready-for-dev
+  1-3-user-onboarding-profile: ready-for-dev
+  1-4-client-side-login-logout: ready-for-dev
+  1-5-user-deletion-data-cleanup: ready-for-dev
+  2-1-resume-crud-operations: ready-for-dev
+  2-2-structured-content-editor-backend: ready-for-dev
+  2-3-frontend-editor-ui-state: ready-for-dev
+  2-4-live-preview-component: ready-for-dev
+  2-5-template-system-foundation: ready-for-dev
+  2-6-resume-lifecycle-management: ready-for-dev
+  3-1-credit-ledger-balance-system: ready-for-dev
+  3-2-ai-service-integration: ready-for-dev
+  3-3-frontend-ai-interaction: ready-for-dev
+  4-1-async-export-queue-setup: ready-for-dev
+  4-2-pdf-rendering-worker: ready-for-dev
+  4-3-public-sharing-link: ready-for-dev
+  5-1-payment-gateway-integration: ready-for-dev
+  5-2-ats-readiness-logic: ready-for-dev
+  6-1-admin-dashboard-implementation: ready-for-dev
+  6-2-credit-pack-management: ready-for-dev
