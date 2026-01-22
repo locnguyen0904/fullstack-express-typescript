@@ -14,6 +14,7 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   role: UserRole;
+  deletedAt?: Date;
   isPasswordMatch(password: string): Promise<boolean>;
 }
 
@@ -47,6 +48,9 @@ const UserSchema = new Schema<IUser, IUserModel>(
       type: String,
       enum: userRoles,
       default: UserRole.User,
+    },
+    deletedAt: {
+      type: Date,
     },
   },
   {

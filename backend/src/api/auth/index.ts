@@ -4,6 +4,7 @@ import { Container } from 'typedi';
 import AuthController from '@/api/auth/auth.controller';
 import { loginSchema } from '@/api/auth/auth.validation';
 import Controller from '@/core/controller.core';
+import { authLimiter } from '@/middlewares/rate-limit.middleware';
 import './auth.doc';
 
 const router = Router();
@@ -11,6 +12,7 @@ const controller = Container.get(AuthController);
 
 router.post(
   '/login',
+  authLimiter,
   validate({ body: loginSchema }),
   Controller.handler(controller.login.bind(controller))
 );

@@ -6,10 +6,23 @@ import { logger, mongoose } from './services';
 const PORT = Number(process.env.PORT) || 3000;
 
 function initGracefulShutdown(server: http.Server): void {
-  process.on('SIGTERM', () => {
-    logger.info('SIGTERM received: closing HTTP server');
-    server.close(() => logger.info('HTTP server closed'));
-  });
+  const shutdown = async (signal: string) => {
+    logger.info(`${signal} received: closing HTTP server`);
+
+    server.close(async () => {
+      logger.info('HTTP server closed');
+      await mongoose.disconnectDB();
+      process.exit(0);
+    });
+
+    setTimeout(() => {
+      logger.error('Graceful shutdown timed out, forcing exit');
+      process.exit(1);
+    }, 30000).unref();
+  };
+
+  process.on('SIGTERM', () => void shutdown('SIGTERM'));
+  process.on('SIGINT', () => void shutdown('SIGINT'));
 }
 
 // -----------------------------

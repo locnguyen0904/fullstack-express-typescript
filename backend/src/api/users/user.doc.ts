@@ -2,6 +2,12 @@ import { registry } from '@/config/openapi.config';
 import { z } from 'zod';
 import { createUserSchema, updateUserSchema } from './user.validation';
 import { idParamSchema } from '@/common/validation/params.validation';
+import { listQuerySchema } from '@/common/validation/list.validation';
+import {
+  dataResponseSchema,
+  errorResponseSchema,
+  listResponseSchema,
+} from '@/common/schemas/response.schema';
 
 const bearerAuth = registry.registerComponent('securitySchemes', 'bearerAuth', {
   type: 'http',
@@ -27,23 +33,36 @@ registry.registerPath({
   tags: ['Users'],
   summary: 'Get all users',
   security,
+  description:
+    'Returns active users. Use `includeDeleted=true` to include soft-deleted records.',
+  request: {
+    query: listQuerySchema,
+  },
   responses: {
     200: {
       description: 'List of users',
       content: {
         'application/json': {
-          schema: z.object({
-            data: z.array(userResponseSchema),
-            total: z.number(),
-            page: z.number(),
-            pages: z.number(),
-            limit: z.number(),
-          }),
+          schema: listResponseSchema(userResponseSchema),
         },
       },
     },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });
 
@@ -62,15 +81,34 @@ registry.registerPath({
       description: 'User details',
       content: {
         'application/json': {
-          schema: z.object({
-            data: userResponseSchema,
-          }),
+          schema: dataResponseSchema(userResponseSchema),
         },
       },
     },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
-    404: { description: 'User not found' },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'User not found',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });
 
@@ -95,15 +133,34 @@ registry.registerPath({
       description: 'User created successfully',
       content: {
         'application/json': {
-          schema: z.object({
-            data: userResponseSchema,
-          }),
+          schema: dataResponseSchema(userResponseSchema),
         },
       },
     },
-    400: { description: 'Bad request - Email already taken' },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
+    400: {
+      description: 'Bad request - Email already taken',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });
 
@@ -129,15 +186,34 @@ registry.registerPath({
       description: 'User updated successfully',
       content: {
         'application/json': {
-          schema: z.object({
-            data: userResponseSchema,
-          }),
+          schema: dataResponseSchema(userResponseSchema),
         },
       },
     },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
-    404: { description: 'User not found' },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'User not found',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });
 
@@ -146,7 +222,8 @@ registry.registerPath({
   method: 'delete',
   path: '/users/{id}',
   tags: ['Users'],
-  summary: 'Delete a user',
+  summary: 'Soft delete a user',
+  description: 'Marks the user as deleted without removing it from storage.',
   security,
   request: {
     params: idParamSchema,
@@ -156,14 +233,33 @@ registry.registerPath({
       description: 'User deleted successfully',
       content: {
         'application/json': {
-          schema: z.object({
-            data: userResponseSchema,
-          }),
+          schema: dataResponseSchema(userResponseSchema),
         },
       },
     },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
-    404: { description: 'User not found' },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'User not found',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });

@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { env } from './env.schema';
 
 interface IDatabaseConfig {
   url: string;
@@ -18,30 +16,50 @@ interface IAdminConfig {
   password?: string;
 }
 
+interface IFirebaseConfig {
+  projectId: string;
+  clientEmail: string;
+  privateKey: string;
+}
+
+interface IRedisConfig {
+  url?: string;
+}
+
 interface IConfig {
   mongodb: IDatabaseConfig;
   jwt: IJwtConfig;
   admin: IAdminConfig;
+  firebase: IFirebaseConfig;
+  redis: IRedisConfig;
   env: string;
+  port?: number;
 }
 
 const config: IConfig = {
   mongodb: {
-    url: process.env.DATABASE_URL as string,
+    url: env.DATABASE_URL,
   },
   jwt: {
-    secret: process.env.JWT_SECRET as string,
-    accessExpirationMinutes:
-      Number(process.env.JWT_ACCESS_EXPIRATION_MINUTES) || 30,
-    refreshExpirationDays:
-      Number(process.env.JWT_REFRESH_EXPIRATION_DAYS) || 30,
+    secret: env.JWT_SECRET,
+    accessExpirationMinutes: env.JWT_ACCESS_EXPIRATION_MINUTES,
+    refreshExpirationDays: env.JWT_REFRESH_EXPIRATION_DAYS,
   },
   admin: {
-    name: process.env.ADMIN_NAME || 'Super Admin',
-    email: process.env.ADMIN_EMAIL || 'admin@example.com',
-    password: process.env.ADMIN_PASSWORD || 'password123',
+    name: env.ADMIN_NAME,
+    email: env.ADMIN_EMAIL,
+    password: env.ADMIN_PASSWORD,
   },
-  env: process.env.NODE_ENV || 'development',
+  firebase: {
+    projectId: env.FIREBASE_PROJECT_ID || '',
+    clientEmail: env.FIREBASE_CLIENT_EMAIL || '',
+    privateKey: (env.FIREBASE_PRIVATE_KEY || '').replace(/\n/g, '\n'),
+  },
+  redis: {
+    url: env.REDIS_URL,
+  },
+  env: env.NODE_ENV,
+  port: env.PORT,
 };
 
 export default config;

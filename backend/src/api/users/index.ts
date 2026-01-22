@@ -6,6 +6,7 @@ import Controller from '@/core/controller.core';
 import { isAuth, authorize } from '@/middlewares/auth.middleware';
 import { createUserSchema, updateUserSchema } from './user.validation';
 import { idParamSchema } from '@/common/validation/params.validation';
+import { listQuerySchema } from '@/common/validation/list.validation';
 import './user.doc';
 
 const router = Router();
@@ -15,12 +16,14 @@ router.get(
   '/',
   isAuth,
   authorize('admin'),
+  validate({ query: listQuerySchema }),
   Controller.handler(controller.findAll.bind(controller))
 );
 router.get(
   '/:id',
   isAuth,
   authorize('admin'),
+  validate({ params: idParamSchema }),
   Controller.handler(controller.findOne.bind(controller))
 );
 router.post(
@@ -41,6 +44,7 @@ router.delete(
   '/:id',
   isAuth,
   authorize('admin'),
+  validate({ params: idParamSchema }),
   Controller.handler(controller.delete.bind(controller))
 );
 

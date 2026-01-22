@@ -4,6 +4,7 @@ import validate from 'express-zod-safe';
 import { Container } from 'typedi';
 import { createExampleSchema, updateExampleSchema } from './example.validation';
 import { idParamSchema } from '@/common/validation/params.validation';
+import { listQuerySchema } from '@/common/validation/list.validation';
 import ExampleController from './example.controller';
 import Controller from '@/core/controller.core';
 import { isAuth, authorize } from '@/middlewares/auth.middleware';
@@ -12,8 +13,16 @@ import './example.doc';
 const router: Router = Router();
 const controller = Container.get(ExampleController);
 
-router.get('/', Controller.handler(controller.findAll.bind(controller)));
-router.get('/:id', Controller.handler(controller.findOne.bind(controller)));
+router.get(
+  '/',
+  validate({ query: listQuerySchema }),
+  Controller.handler(controller.findAll.bind(controller))
+);
+router.get(
+  '/:id',
+  validate({ params: idParamSchema }),
+  Controller.handler(controller.findOne.bind(controller))
+);
 
 router.post(
   '/',
@@ -33,6 +42,7 @@ router.delete(
   '/:id',
   isAuth,
   authorize('admin'),
+  validate({ params: idParamSchema }),
   Controller.handler(controller.delete.bind(controller))
 );
 

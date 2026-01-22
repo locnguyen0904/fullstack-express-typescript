@@ -34,7 +34,7 @@ class Controller<T, S extends Service<T>> {
   }
 
   async delete(req: Request, res: Response): Promise<void> {
-    const result = await this.service.remove(req.params.id);
+    const result = await this.service.softDelete(req.params.id);
     if (!result) {
       throw new NotFoundError(
         `${this._name} does not found with id ${req.params.id}`

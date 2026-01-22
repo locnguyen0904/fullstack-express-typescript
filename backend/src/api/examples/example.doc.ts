@@ -2,6 +2,12 @@ import { registry } from '@/config/openapi.config';
 import { z } from 'zod';
 import { createExampleSchema, updateExampleSchema } from './example.validation';
 import { idParamSchema } from '@/common/validation/params.validation';
+import { listQuerySchema } from '@/common/validation/list.validation';
+import {
+  dataResponseSchema,
+  listResponseSchema,
+  errorResponseSchema,
+} from '@/common/schemas/response.schema';
 
 const bearerAuth = registry.registerComponent('securitySchemes', 'bearerAuth', {
   type: 'http',
@@ -17,18 +23,17 @@ registry.registerPath({
   path: '/examples',
   tags: ['Examples'],
   summary: 'Get all examples',
+  description:
+    'Returns active examples. Use `includeDeleted=true` to include soft-deleted records.',
+  request: {
+    query: listQuerySchema,
+  },
   responses: {
     200: {
       description: 'List of examples',
       content: {
         'application/json': {
-          schema: z.object({
-            data: z.array(createExampleSchema),
-            total: z.number(),
-            page: z.number(),
-            pages: z.number(),
-            limit: z.number(),
-          }),
+          schema: listResponseSchema(createExampleSchema),
         },
       },
     },
@@ -49,14 +54,19 @@ registry.registerPath({
       description: 'Example details',
       content: {
         'application/json': {
-          schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
-          }),
+          schema: dataResponseSchema(
+            createExampleSchema.extend({ _id: z.string() })
+          ),
         },
       },
     },
     404: {
       description: 'Example not found',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
     },
   },
 });
@@ -82,14 +92,28 @@ registry.registerPath({
       description: 'Example created successfully',
       content: {
         'application/json': {
-          schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
-          }),
+          schema: dataResponseSchema(
+            createExampleSchema.extend({ _id: z.string() })
+          ),
         },
       },
     },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });
 
@@ -115,16 +139,35 @@ registry.registerPath({
       description: 'Example updated successfully',
       content: {
         'application/json': {
-          schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
-          }),
+          schema: dataResponseSchema(
+            createExampleSchema.extend({ _id: z.string() })
+          ),
         },
       },
     },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
     404: {
       description: 'Example not found',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
     },
   },
 });
@@ -134,7 +177,8 @@ registry.registerPath({
   method: 'delete',
   path: '/examples/{id}',
   tags: ['Examples'],
-  summary: 'Delete an example',
+  summary: 'Soft delete an example',
+  description: 'Marks the example as deleted without removing it from storage.',
   security,
   request: {
     params: idParamSchema,
@@ -144,16 +188,35 @@ registry.registerPath({
       description: 'Example deleted successfully',
       content: {
         'application/json': {
-          schema: z.object({
-            data: createExampleSchema.extend({ _id: z.string() }),
-          }),
+          schema: dataResponseSchema(
+            createExampleSchema.extend({ _id: z.string() })
+          ),
         },
       },
     },
-    401: { description: 'Unauthorized' },
-    403: { description: 'Forbidden - Admin only' },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden - Admin only',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
     404: {
       description: 'Example not found',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
     },
   },
 });

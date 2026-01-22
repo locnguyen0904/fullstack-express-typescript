@@ -1,6 +1,11 @@
 import { registry } from '@/config/openapi.config';
 import { z } from 'zod';
 import { loginSchema } from './auth.validation';
+import {
+  baseSuccessSchema,
+  dataResponseSchema,
+  errorResponseSchema,
+} from '@/common/schemas/response.schema';
 
 const tokenResponseSchema = z.object({
   token: z
@@ -37,19 +42,27 @@ registry.registerPath({
       description: 'Login successful',
       content: {
         'application/json': {
-          schema: z.object({
-            message: z.string().openapi({ example: 'Login successfully' }),
-            data: z.object({
+          schema: dataResponseSchema(
+            z.object({
               user: userResponseSchema,
               token: z.string().openapi({
                 example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
               }),
-            }),
+            })
+          ).extend({
+            message: z.string().openapi({ example: 'Login successfully' }),
           }),
         },
       },
     },
-    401: { description: 'Incorrect email or password' },
+    401: {
+      description: 'Incorrect email or password',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });
 
@@ -66,14 +79,20 @@ registry.registerPath({
       description: 'Token refreshed successfully',
       content: {
         'application/json': {
-          schema: z.object({
+          schema: dataResponseSchema(tokenResponseSchema).extend({
             message: z.string().openapi({ example: 'Token refreshed' }),
-            data: tokenResponseSchema,
           }),
         },
       },
     },
-    401: { description: 'No refresh token provided or invalid token' },
+    401: {
+      description: 'No refresh token provided or invalid token',
+      content: {
+        'application/json': {
+          schema: errorResponseSchema,
+        },
+      },
+    },
   },
 });
 
@@ -89,7 +108,7 @@ registry.registerPath({
       description: 'Logout successful',
       content: {
         'application/json': {
-          schema: z.object({
+          schema: baseSuccessSchema.extend({
             message: z.string().openapi({ example: 'Logout successfully' }),
           }),
         },

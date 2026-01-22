@@ -49,15 +49,9 @@ services:
     image: backend-template:latest
     container_name: backend-template_backend_prod
     restart: always
+    env_file:
+      - .env.prod
     ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL:-mongodb://mongo:27017/backend-template}
-      - PORT=3000
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
     depends_on:
       mongo:
         condition: service_healthy

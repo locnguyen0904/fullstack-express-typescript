@@ -49,10 +49,11 @@ services:
       target: development
     container_name: backend-template_backend
     restart: always
+    env_file:
+      - .env
     ports:
       - "3000:3000"
       - "9229:9229"
-    # Environment variables are loaded from backend/.env file (mounted via volume)
     volumes:
       - ./backend:/home/app/backend-template
       - backend_node_modules:/home/app/backend-template/node_modules

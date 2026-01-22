@@ -12,6 +12,8 @@ A modern, full-stack application template featuring a Node.js/Express backend wi
   - Helmet for HTTP security headers.
   - Rate limiting for API endpoints.
   - CORS configuration.
+- **Health Checks**: Built-in `/health` endpoint for liveness/readiness checks.
+- **Soft Delete**: Safe deletes with optional `includeDeleted` query filtering.
 - **Logging**: Structured logging with `winston` and daily log rotation.
 - **Testing**: Jest setup with `supertest` for integration testing.
 - **Database**: MongoDB with Mongoose ODM and pagination support.
@@ -65,6 +67,9 @@ The easiest way to run the application is using Docker Compose:
    cp .env.example .env
    ```
 
+   Optional cache settings:
+   - `REDIS_URL` (example: `redis://localhost:6379`)
+
 2. **Build and start the containers:**
 
    ```bash
@@ -74,6 +79,7 @@ The easiest way to run the application is using Docker Compose:
 3. **Access the application:**
    - Backend API: <http://localhost:3000/api/v1>
    - API Documentation: <http://localhost:3000/api-docs>
+   - Health Check: <http://localhost:3000/health>
    - Admin Dashboard: <http://localhost:3001>
 
 ### 3. Local Development

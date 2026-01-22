@@ -4,6 +4,7 @@ import mongoosePaginate from 'mongoose-paginate-v2';
 export interface IExample extends Document {
   title: string;
   content: string;
+  deletedAt?: Date;
 }
 
 const ExampleSchema = new Schema<IExample>(
@@ -15,6 +16,9 @@ const ExampleSchema = new Schema<IExample>(
     content: {
       type: String,
       required: true,
+    },
+    deletedAt: {
+      type: Date,
     },
   },
   {

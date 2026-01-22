@@ -10,11 +10,17 @@ import { errorHandle, notFoundHandle } from './helpers/handle-errors.helper';
 import morganMiddleware from './middlewares/morgan.middleware';
 import { apiLimiter } from './middlewares/rate-limit.middleware';
 import { generateOpenApiDocs } from './config/openapi.config';
+import { requestIdMiddleware } from './middlewares/request-id.middleware';
 import api from '@/api';
+import { healthHandler } from '@/api/health';
+import '@/services/event.handlers';
+import config from './config/env.config';
 
 const rootApi = '/api/v1';
 
 const app: Express = express();
+
+app.set('trust proxy', config.env === 'production');
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(generateOpenApiDocs()));
@@ -26,6 +32,9 @@ app.disable('x-powered-by');
 
 // Rate Limiting
 app.use(rootApi, apiLimiter);
+
+// Request ID
+app.use(requestIdMiddleware);
 
 // Morgan
 app.use(morganMiddleware);
@@ -42,6 +51,8 @@ app.use(express.json());
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Welcome to backend-template API!' });
 });
+
+app.get('/health', healthHandler);
 
 app.use(rootApi, api);
 
