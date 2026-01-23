@@ -61,3 +61,6 @@ backend/logs/*
 
 backend/build
 frontend/build
+
+compose/mongo/keys/*
+!compose/mongo/keys/keyfile.local

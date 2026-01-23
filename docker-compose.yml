@@ -9,22 +9,26 @@ networks:
 
 services:
   mongo:
-    image: mongo:8.0
     container_name: backend-template_mongo
+    build:
+      context: .
+      dockerfile: compose/mongo/Dockerfile
     restart: always
     environment:
       - MONGO_INITDB_DATABASE=backend-template
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-password123}
+    command: mongod --storageEngine wiredTiger --replSet rs0 --bind_ip_all --keyFile /etc/mongo-keyfile --quiet
     volumes:
       - mongo_data:/data/db
     ports:
       - "27017:27017"
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}) }" | mongosh -u ${MONGO_INITDB_ROOT_USERNAME:-admin} -p ${MONGO_INITDB_ROOT_PASSWORD:-password123} --authenticationDatabase admin --quiet
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
+      start_period: 5s
     networks:
       - app-network
 
@@ -32,6 +36,7 @@ services:
     image: redis:6.2.13-alpine
     container_name: backend-template_redis
     restart: always
+    command: redis-server --appendonly yes
     ports:
       - "6379:6379"
     healthcheck:
@@ -78,7 +83,7 @@ services:
       - ./frontend:/home/app/client
       - frontend_node_modules:/home/app/client/node_modules
     environment:
-      - VITE_API_URL=http://localhost:3000
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
     depends_on:
       - backend
     networks:
