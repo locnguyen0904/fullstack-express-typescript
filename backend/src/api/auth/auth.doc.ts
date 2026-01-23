@@ -5,7 +5,7 @@ import {
   baseSuccessSchema,
   dataResponseSchema,
   errorResponseSchema,
-} from '@/common/schemas/response.schema';
+} from '@/common';
 
 const tokenResponseSchema = z.object({
   token: z

@@ -3,6 +3,7 @@ import { Response as ExpressResponse, NextFunction, Request } from 'express';
 import mongoose from 'mongoose';
 
 import Response from './response.helper';
+import { logger } from '@/services';
 import {
   AppError,
   InternalServerError,
@@ -28,6 +29,37 @@ const getZodError = (
   };
 };
 
+const isDuplicateKeyError = (
+  error: unknown
+): error is { code: number; keyValue?: Record<string, unknown> } => {
+  if (!error || typeof error !== 'object') return false;
+  return 'code' in error && (error as { code?: number }).code === 11000;
+};
+
+const getDuplicateKeyError = (error: {
+  keyValue?: Record<string, unknown>;
+}): {
+  message: string;
+  code: string;
+  details?: { field: string }[];
+} => {
+  const keyValue = error.keyValue ?? {};
+  const fields = Object.keys(keyValue);
+
+  if (fields.length === 0) {
+    return {
+      message: 'Duplicate key error',
+      code: 'DUPLICATE_KEY',
+    };
+  }
+
+  return {
+    message: `Duplicate value for ${fields.join(', ')}`,
+    code: 'DUPLICATE_KEY',
+    details: fields.map((field) => ({ field })),
+  };
+};
+
 export const errorHandle = (
   error: unknown,
   _req: Request,
@@ -35,16 +67,29 @@ export const errorHandle = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void => {
+  const includeStack = process.env.NODE_ENV !== 'production';
+
   if (error instanceof AppError) {
     const { message, status, stack } = error;
     const code = typeof error.code === 'string' ? error.code : undefined;
-    Response.error(res, { message, code, stack }, status);
+    const payload = {
+      message,
+      code,
+      ...(includeStack && stack ? { stack } : {}),
+    };
+    Response.error(res, payload, status);
     return;
   }
 
   if (error instanceof ZodError) {
     const zodError = getZodError(error);
     Response.error(res, zodError, 400);
+    return;
+  }
+
+  if (isDuplicateKeyError(error)) {
+    const duplicateKeyError = getDuplicateKeyError(error);
+    Response.error(res, duplicateKeyError, 409);
     return;
   }
 
@@ -69,16 +114,27 @@ export const errorHandle = (
   const { message, status, stack } = internalError;
   const code =
     typeof internalError.code === 'string' ? internalError.code : undefined;
-  Response.error(res, { message, code, stack }, status);
+  const payload = {
+    message,
+    code,
+    ...(includeStack && stack ? { stack } : {}),
+  };
+  Response.error(res, payload, status);
 };
 
 export const logErrors = (
   err: Error,
-  _req: Request,
+  req: Request,
   _res: ExpressResponse,
   next: NextFunction
 ): void => {
-  console.error(err.stack);
+  logger.error('Request failed', {
+    message: err.message,
+    stack: err.stack,
+    requestId: req.requestId,
+    method: req.method,
+    url: req.originalUrl,
+  });
   next(err);
 };
 

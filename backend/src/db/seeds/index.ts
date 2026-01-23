@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import config from '@/config/env.config';
+import { config } from '@/config';
 import { logger } from '@/services';
 import User from '@/api/users/user.model';
 

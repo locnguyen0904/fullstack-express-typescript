@@ -6,15 +6,20 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 
-import { errorHandle, notFoundHandle } from './helpers/handle-errors.helper';
-import morganMiddleware from './middlewares/morgan.middleware';
-import { apiLimiter } from './middlewares/rate-limit.middleware';
-import { generateOpenApiDocs } from './config/openapi.config';
-import { requestIdMiddleware } from './middlewares/request-id.middleware';
+import {
+  errorHandle,
+  logErrors,
+  notFoundHandle,
+} from '@/helpers/handle-errors.helper';
+import {
+  morganMiddleware,
+  apiLimiter,
+  requestIdMiddleware,
+} from '@/middlewares';
+import { generateOpenApiDocs, config } from '@/config';
 import api from '@/api';
 import { healthHandler } from '@/api/health';
 import '@/services/event.handlers';
-import config from './config/env.config';
 
 const rootApi = '/api/v1';
 
@@ -57,6 +62,8 @@ app.get('/health', healthHandler);
 app.use(rootApi, api);
 
 app.use(notFoundHandle);
+
+app.use(logErrors);
 
 app.use(errorHandle);
 

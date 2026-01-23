@@ -1,6 +1,11 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate-v2';
+import mongooseDelete from 'mongoose-delete';
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
+
+import { BaseDocument } from '@/core/base-document.core';
+import { applyPlugin } from '@/helpers';
 
 export enum UserRole {
   Admin = 'admin',
@@ -9,12 +14,11 @@ export enum UserRole {
 
 export const userRoles = [UserRole.Admin, UserRole.User] as const;
 
-export interface IUser extends Document {
+export interface IUser extends BaseDocument {
   fullName: string;
   email: string;
   password?: string;
   role: UserRole;
-  deletedAt?: Date;
   isPasswordMatch(password: string): Promise<boolean>;
 }
 
@@ -42,15 +46,12 @@ const UserSchema = new Schema<IUser, IUserModel>(
     password: {
       type: String,
       required: true,
-      private: true,
+      select: false,
     },
     role: {
       type: String,
       enum: userRoles,
       default: UserRole.User,
-    },
-    deletedAt: {
-      type: Date,
     },
   },
   {
@@ -58,7 +59,6 @@ const UserSchema = new Schema<IUser, IUserModel>(
     toJSON: {
       transform: (_doc, ret) => {
         delete ret.password;
-        delete ret.__v;
         return ret;
       },
     },
@@ -72,26 +72,26 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-UserSchema.method(
-  'isPasswordMatch',
-  async function (password: string): Promise<boolean> {
-    if (!this.password) return false;
-    return bcrypt.compare(password, this.password);
-  }
-);
+UserSchema.methods.isPasswordMatch = async function (
+  password: string
+): Promise<boolean> {
+  if (!this.password) return false;
+  return bcrypt.compare(password, this.password);
+};
 
-UserSchema.static(
-  'isEmailTaken',
-  async function (
-    email: string,
-    excludeUserId?: mongoose.Types.ObjectId
-  ): Promise<boolean> {
-    const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
-    return !!user;
-  }
-);
-
-UserSchema.plugin(mongoosePaginate);
+UserSchema.statics.isEmailTaken = async function (
+  email: string,
+  excludeUserId?: mongoose.Types.ObjectId
+): Promise<boolean> {
+  const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
+  return !!user;
+};
+applyPlugin(UserSchema, mongooseDelete, {
+  deletedAt: true,
+  overrideMethods: 'all',
+});
+applyPlugin(UserSchema, mongooseAggregatePaginate);
+applyPlugin(UserSchema, mongoosePaginate);
 
 const User = mongoose.model<IUser, IUserModel>('User', UserSchema);
 

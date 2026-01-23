@@ -1,12 +1,21 @@
 import mongoose from 'mongoose';
 import logger from './logger.service';
-import config from '@/config/env.config';
+import { config } from '@/config';
 
 const MONGODB_OPTIONS: mongoose.ConnectOptions = {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
 };
+
+mongoose.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+});
+
+mongoose.set('toObject', {
+  virtuals: true,
+});
 
 export const connectDB = async (): Promise<void> => {
   const startTime = Date.now();

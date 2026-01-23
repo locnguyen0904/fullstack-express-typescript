@@ -23,8 +23,7 @@ export default class UserService extends ServiceCore<IUser> {
   async remove(id: string): Promise<IUser | null> {
     const deleted = await super.remove(id);
     if (deleted) {
-      const userId = (deleted as unknown as { id?: string }).id || id;
-      this.eventService.emitUserDeleted(userId);
+      this.eventService.emitUserDeleted(deleted.id);
     }
     return deleted;
   }
@@ -32,8 +31,7 @@ export default class UserService extends ServiceCore<IUser> {
   async softDelete(id: string): Promise<IUser | null> {
     const deleted = await super.softDelete(id);
     if (deleted) {
-      const userId = (deleted as unknown as { id?: string }).id || id;
-      this.eventService.emitUserDeleted(userId);
+      this.eventService.emitUserDeleted(deleted.id);
     }
     return deleted;
   }

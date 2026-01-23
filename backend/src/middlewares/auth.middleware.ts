@@ -1,4 +1,4 @@
-import config from '@/config/env.config';
+import { config } from '@/config';
 import { ForbiddenError, UnAuthorizedError } from '@/core/response-error.core';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';

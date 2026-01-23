@@ -1,10 +1,14 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
+import mongooseDelete from 'mongoose-delete';
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
-export interface IExample extends Document {
+import { BaseDocument } from '@/core/base-document.core';
+import { applyPlugin } from '@/helpers';
+
+export interface IExample extends BaseDocument {
   title: string;
   content: string;
-  deletedAt?: Date;
 }
 
 const ExampleSchema = new Schema<IExample>(
@@ -17,16 +21,18 @@ const ExampleSchema = new Schema<IExample>(
       type: String,
       required: true,
     },
-    deletedAt: {
-      type: Date,
-    },
   },
   {
     timestamps: true,
   }
 );
 
-ExampleSchema.plugin(mongoosePaginate);
+applyPlugin(ExampleSchema, mongooseDelete, {
+  deletedAt: true,
+  overrideMethods: 'all',
+});
+applyPlugin(ExampleSchema, mongooseAggregatePaginate);
+applyPlugin(ExampleSchema, mongoosePaginate);
 
 const Example = mongoose.model<IExample>('Example', ExampleSchema);
 

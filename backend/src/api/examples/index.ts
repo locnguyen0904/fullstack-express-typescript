@@ -3,11 +3,10 @@ import { Router } from 'express';
 import validate from 'express-zod-safe';
 import { Container } from 'typedi';
 import { createExampleSchema, updateExampleSchema } from './example.validation';
-import { idParamSchema } from '@/common/validation/params.validation';
-import { listQuerySchema } from '@/common/validation/list.validation';
+import { idParamSchema, listQuerySchema } from '@/common';
 import ExampleController from './example.controller';
 import Controller from '@/core/controller.core';
-import { isAuth, authorize } from '@/middlewares/auth.middleware';
+import { isAuth, authorize } from '@/middlewares';
 import './example.doc';
 
 const router: Router = Router();

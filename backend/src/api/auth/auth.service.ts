@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import jwt from 'jsonwebtoken';
-import config from '@/config/env.config';
+import { config } from '@/config';
 import UserService from '@/api/users/user.service';
 import { UnAuthorizedError } from '@/core/response-error.core';
 import { IUser } from '@/api/users/user.model';
