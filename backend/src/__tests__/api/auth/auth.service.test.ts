@@ -1,4 +1,4 @@
-import AuthService from './auth.service';
+import AuthService from '@/api/auth/auth.service';
 import UserService from '@/api/users/user.service';
 
 describe('AuthService', () => {

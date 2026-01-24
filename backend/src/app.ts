@@ -19,7 +19,7 @@ import {
 import { generateOpenApiDocs, config } from '@/config';
 import api from '@/api';
 import { healthHandler } from '@/api/health';
-import '@/services/event.handlers';
+import '@/api/users/user.events';
 
 const rootApi = '/api/v1';
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import validate from 'express-zod-safe';
 import { Container } from 'typedi';
 import UserController from '@/api/users/user.controller';
-import Controller from '@/core/controller.core';
+import { Controller } from '@/core';
 import { isAuth, authorize } from '@/middlewares';
 import { createUserSchema, updateUserSchema } from './user.validation';
 import { idParamSchema, listQuerySchema } from '@/common';

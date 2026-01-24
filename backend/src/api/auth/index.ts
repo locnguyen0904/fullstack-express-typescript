@@ -3,7 +3,7 @@ import validate from 'express-zod-safe';
 import { Container } from 'typedi';
 import AuthController from '@/api/auth/auth.controller';
 import { loginSchema } from '@/api/auth/auth.validation';
-import Controller from '@/core/controller.core';
+import { Controller } from '@/core';
 import { authLimiter } from '@/middlewares';
 import './auth.doc';
 

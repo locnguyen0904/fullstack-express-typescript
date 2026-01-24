@@ -4,11 +4,7 @@ import mongoose from 'mongoose';
 
 import Response from './response.helper';
 import { logger } from '@/services';
-import {
-  AppError,
-  InternalServerError,
-  NotFoundError,
-} from '@/core/response-error.core';
+import { AppError, InternalServerError, NotFoundError } from '@/core';
 
 const getZodError = (
   error: ZodError

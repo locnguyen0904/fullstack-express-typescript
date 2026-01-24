@@ -8,6 +8,7 @@
     "prebuild": "rimraf dist",
     "build": "tsc && tsc-alias",
     "test": "jest --runInBand --silent",
+    "test:coverage": "jest --runInBand --coverage",
     "lint": "eslint './src/**/*.{js,ts}'",
     "lint:fix": "eslint './src/**/*.{js,ts}' --fix",
     "prettier": "prettier --check './src/**/*.{js,ts}'",

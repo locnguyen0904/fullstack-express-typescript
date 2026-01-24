@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Service } from 'typedi';
 import ExampleService from './example.service';
 import { IExample } from './example.model';
-import Controller from '@/core/controller.core';
+import { Controller } from '@/core';
 
 @Service()
 class ExampleController extends Controller<IExample, ExampleService> {

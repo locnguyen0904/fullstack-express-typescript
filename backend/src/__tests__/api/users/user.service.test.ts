@@ -1,6 +1,6 @@
 import User from '@/api/users/user.model';
-import UserService from './user.service';
-import { BadRequestError } from '@/core/response-error.core';
+import UserService from '@/api/users/user.service';
+import { BadRequestError } from '@/core';
 import EventService from '@/services/event.service';
 
 jest.mock('@/api/users/user.model', () => ({

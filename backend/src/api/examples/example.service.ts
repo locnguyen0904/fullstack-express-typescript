@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { Service } from 'typedi';
 import Example, { IExample } from './example.model';
-import BaseService from '@/core/service.core';
+import { Service as ServiceCore } from '@/core';
 import CacheService from '@/services/cache.service';
 
 @Service()
-class ExampleService extends BaseService<IExample> {
+class ExampleService extends ServiceCore<IExample> {
   constructor(private cacheService: CacheService) {
     super(Example);
   }
@@ -34,7 +34,7 @@ class ExampleService extends BaseService<IExample> {
     const cacheKey = `examples:list:${JSON.stringify(query)}`;
     const cached =
       await this.cacheService.get<
-        Awaited<ReturnType<BaseService<IExample>['findAll']>>
+        Awaited<ReturnType<ServiceCore<IExample>['findAll']>>
       >(cacheKey);
 
     if (cached) {

@@ -2,7 +2,7 @@ import { Service } from 'typedi';
 import jwt from 'jsonwebtoken';
 import { config } from '@/config';
 import UserService from '@/api/users/user.service';
-import { UnAuthorizedError } from '@/core/response-error.core';
+import { UnAuthorizedError } from '@/core';
 import { IUser } from '@/api/users/user.model';
 import { AuthTokens } from './auth.interface';
 

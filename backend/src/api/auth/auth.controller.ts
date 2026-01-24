@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
 import AuthService from '@/api/auth/auth.service';
-import { SuccessResponse } from '@/core/response-success.core';
-import { UnAuthorizedError } from '@/core/response-error.core';
+import { SuccessResponse, UnAuthorizedError } from '@/core';
 
 @Service()
 export default class AuthController {

@@ -1,7 +1,6 @@
 import { Service } from 'typedi';
 import User, { IUser } from '@/api/users/user.model';
-import ServiceCore from '@/core/service.core';
-import { BadRequestError } from '@/core/response-error.core';
+import { Service as ServiceCore, BadRequestError } from '@/core';
 import EventService from '@/services/event.service';
 
 @Service()

@@ -4,7 +4,7 @@ import mongoosePaginate from 'mongoose-paginate-v2';
 import mongooseDelete from 'mongoose-delete';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
-import { BaseDocument } from '@/core/base-document.core';
+import { BaseDocument } from '@/core';
 import { applyPlugin } from '@/helpers';
 
 export enum UserRole {
