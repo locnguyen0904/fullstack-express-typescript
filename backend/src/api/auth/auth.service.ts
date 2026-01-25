@@ -5,6 +5,7 @@ import UserService from '@/api/users/user.service';
 import { UnAuthorizedError } from '@/core';
 import { IUser } from '@/api/users/user.model';
 import { AuthTokens } from './auth.interface';
+import logger from '@/services/logger.service';
 
 @Service()
 export default class AuthService {
@@ -36,7 +37,8 @@ export default class AuthService {
         throw new UnAuthorizedError('User not found');
       }
       return this.generateAuthTokens(user);
-    } catch {
+    } catch (error) {
+      logger.error('Token refresh failed', { error });
       throw new UnAuthorizedError('Please authenticate');
     }
   }

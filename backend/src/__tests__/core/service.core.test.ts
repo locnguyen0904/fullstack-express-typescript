@@ -254,7 +254,7 @@ describe('Service', () => {
 
       expect(paginateMock).toHaveBeenCalledWith(
         {},
-        { page: 1, limit: 25, sort: '-createdAt' }
+        { page: 1, limit: 25, sort: '-createdAt', lean: true }
       );
     });
 
@@ -269,7 +269,7 @@ describe('Service', () => {
 
       expect(paginateMock).toHaveBeenCalledWith(
         {},
-        { page: 2, limit: 10, sort: 'name' }
+        { page: 2, limit: 10, sort: 'name', lean: true }
       );
     });
 
@@ -284,7 +284,13 @@ describe('Service', () => {
 
       expect(paginateMock).toHaveBeenCalledWith(
         {},
-        { page: 1, limit: 25, sort: '-createdAt', withDeleted: true }
+        {
+          page: 1,
+          limit: 25,
+          sort: '-createdAt',
+          withDeleted: true,
+          lean: true,
+        }
       );
     });
 
@@ -299,7 +305,13 @@ describe('Service', () => {
 
       expect(paginateMock).toHaveBeenCalledWith(
         {},
-        { page: 1, limit: 25, sort: '-createdAt', withDeleted: true }
+        {
+          page: 1,
+          limit: 25,
+          sort: '-createdAt',
+          withDeleted: true,
+          lean: true,
+        }
       );
     });
 
@@ -314,7 +326,7 @@ describe('Service', () => {
 
       expect(paginateMock).toHaveBeenCalledWith(
         { name: 'Test', status: 'active' },
-        { page: 1, limit: 25, sort: '-createdAt' }
+        { page: 1, limit: 25, sort: '-createdAt', lean: true }
       );
     });
   });

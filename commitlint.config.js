@@ -39,6 +39,7 @@ export default {
         "middleware",
         "test",
         "docs",
+        "redis",
       ],
     ],
 

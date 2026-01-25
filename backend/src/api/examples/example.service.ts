@@ -2,16 +2,16 @@ import 'reflect-metadata';
 import { Service } from 'typedi';
 import Example, { IExample } from './example.model';
 import { Service as ServiceCore } from '@/core';
-import CacheService from '@/services/cache.service';
+import { RedisService } from '@/services';
 
 @Service()
 class ExampleService extends ServiceCore<IExample> {
-  constructor(private cacheService: CacheService) {
+  constructor(private redis: RedisService) {
     super(Example);
   }
 
   private async invalidateListCache() {
-    await this.cacheService.delByPrefix('examples:list:');
+    await this.redis.delByPrefix('examples:list:');
   }
 
   async create(data: Partial<IExample>): Promise<IExample> {
@@ -27,13 +27,13 @@ class ExampleService extends ServiceCore<IExample> {
   }
 
   async findAll(query: Record<string, unknown> = {}) {
-    if (!this.cacheService.isEnabled()) {
+    if (!this.redis.isConnected) {
       return super.findAll(query);
     }
 
     const cacheKey = `examples:list:${JSON.stringify(query)}`;
     const cached =
-      await this.cacheService.get<
+      await this.redis.get<
         Awaited<ReturnType<ServiceCore<IExample>['findAll']>>
       >(cacheKey);
 
@@ -42,7 +42,7 @@ class ExampleService extends ServiceCore<IExample> {
     }
 
     const result = await super.findAll(query);
-    await this.cacheService.set(cacheKey, result, 300);
+    await this.redis.set(cacheKey, result, 300);
     return result;
   }
 

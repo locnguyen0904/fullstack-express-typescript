@@ -52,6 +52,7 @@ const UserSchema = new Schema<IUser, IUserModel>(
       type: String,
       enum: userRoles,
       default: UserRole.User,
+      index: true,
     },
   },
   {
@@ -83,7 +84,10 @@ UserSchema.statics.isEmailTaken = async function (
   email: string,
   excludeUserId?: mongoose.Types.ObjectId
 ): Promise<boolean> {
-  const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
+  const user = await this.findOne({
+    email,
+    _id: { $ne: excludeUserId },
+  }).lean();
   return !!user;
 };
 applyPlugin(UserSchema, mongooseDelete, {
@@ -92,6 +96,9 @@ applyPlugin(UserSchema, mongooseDelete, {
 });
 applyPlugin(UserSchema, mongooseAggregatePaginate);
 applyPlugin(UserSchema, mongoosePaginate);
+
+// Add index for createdAt (used for default sorting)
+UserSchema.index({ createdAt: -1 });
 
 const User = mongoose.model<IUser, IUserModel>('User', UserSchema);
 

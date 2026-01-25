@@ -21,8 +21,11 @@ const fileFormat = format.combine(
   format.json()
 );
 
+const isTest = process.env.NODE_ENV === 'test';
+
 const logger: Logger = createLogger({
-  level: LOG_LEVEL,
+  level: isTest ? 'silent' : LOG_LEVEL,
+  silent: isTest,
   transports: [
     new transports.Console({ format: consoleFormat }),
     new transports.DailyRotateFile({

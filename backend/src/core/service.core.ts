@@ -95,6 +95,7 @@ class Service<T extends Document> {
       page: Number(page),
       limit: Number(limit),
       sort: sort as string,
+      lean: true,
       ...(shouldIncludeDeleted ? { withDeleted: true } : {}),
     };
 

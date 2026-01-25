@@ -1,26 +1,53 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { Options } from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
 import { Request } from 'express';
+import Container from 'typedi';
+import { RedisService } from '@/services';
 
-export const apiLimiter = rateLimit({
+let redisStore: RedisStore | undefined;
+
+const getStore = (): RedisStore | undefined => {
+  if (redisStore) return redisStore;
+
+  try {
+    const client = Container.get(RedisService).instance;
+    if (!client) return undefined;
+
+    redisStore = new RedisStore({
+      // @ts-expect-error - Known issue: ioredis vs rate-limit-redis types
+      sendCommand: (...args: string[]) => client.call(...args),
+      prefix: 'rl:',
+    });
+
+    return redisStore;
+  } catch {
+    return undefined;
+  }
+};
+
+const keyGenerator = (req: Request): string => {
+  return req.user?.sub ?? req.ip ?? 'unknown';
+};
+
+const createLimiter = (options: Partial<Options>) => {
+  return rateLimit({
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: false,
+    keyGenerator,
+    ...options,
+    store: getStore(),
+  });
+};
+
+export const apiLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  validate: { keyGeneratorIpFallback: false },
-  keyGenerator: (req: Request) => req.user?.sub ?? req.ip ?? 'unknown',
-  message: {
-    message: 'Too many requests, please try again after 15 minutes',
-    code: 'TOO_MANY_REQUESTS',
-  },
+  message: { message: 'Too many requests', code: 'TOO_MANY_REQUESTS' },
 });
 
-export const authLimiter = rateLimit({
+export const authLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
   max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    message: 'Too many login attempts, please try again after 15 minutes',
-    code: 'TOO_MANY_REQUESTS',
-  },
+  message: { message: 'Too many login attempts', code: 'TOO_MANY_REQUESTS' },
 });

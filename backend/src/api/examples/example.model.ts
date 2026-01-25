@@ -34,6 +34,9 @@ applyPlugin(ExampleSchema, mongooseDelete, {
 applyPlugin(ExampleSchema, mongooseAggregatePaginate);
 applyPlugin(ExampleSchema, mongoosePaginate);
 
+// Add index for createdAt (used for default sorting)
+ExampleSchema.index({ createdAt: -1 });
+
 const Example = mongoose.model<IExample>('Example', ExampleSchema);
 
 export default Example;
