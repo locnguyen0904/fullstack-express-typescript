@@ -7,7 +7,7 @@ import { Container } from 'typedi';
 
 import { idParamSchema, listQuerySchema } from '@/common';
 import { Controller } from '@/core';
-import { authorize,isAuth } from '@/middlewares';
+import { authorize, isAuth } from '@/middlewares';
 
 import ExampleController from './example.controller';
 import { createExampleSchema, updateExampleSchema } from './example.validation';

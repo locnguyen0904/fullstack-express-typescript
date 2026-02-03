@@ -14,8 +14,8 @@ export default [
       'coverage/**',
       '*.config.js',
       '*.config.mjs',
-      'jest.config.js'
-    ]
+      'jest.config.js',
+    ],
   },
 
   // Base configs
@@ -26,39 +26,42 @@ export default [
   {
     files: ['src/**/*.ts'],
     plugins: {
-      'simple-import-sort': simpleImportSort
+      'simple-import-sort': simpleImportSort,
     },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
         ...globals.node,
-        ...globals.es2021
+        ...globals.es2021,
       },
       parser: tseslint.parser,
       parserOptions: {
         project: './tsconfig.json',
-        tsconfigRootDir: import.meta.dirname
-      }
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     rules: {
       // Import sorting
-      'simple-import-sort/imports': ['error', {
-        groups: [
-          // Side effects
-          ['^\\u0000'],
-          // Node built-ins
-          ['^node:', '^path$', '^fs$', '^http$', '^https$', '^crypto$'],
-          // External packages
-          ['^@?\\w'],
-          // Internal packages (@/)
-          ['^@/'],
-          // Parent imports
-          ['^\\.\\.'],
-          // Relative imports
-          ['^\\.']
-        ]
-      }],
+      'simple-import-sort/imports': [
+        'error',
+        {
+          groups: [
+            // Side effects
+            ['^\\u0000'],
+            // Node built-ins
+            ['^node:', '^path$', '^fs$', '^http$', '^https$', '^crypto$'],
+            // External packages
+            ['^@?\\w'],
+            // Internal packages (@/)
+            ['^@/'],
+            // Parent imports
+            ['^\\.\\.'],
+            // Relative imports
+            ['^\\.'],
+          ],
+        },
+      ],
       'simple-import-sort/exports': 'error',
 
       // Prettier (must be last to override formatting rules)
@@ -68,15 +71,15 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-require-imports': 'off'
-    }
+      '@typescript-eslint/no-require-imports': 'off',
+    },
   },
 
   // Test files - relaxed rules
   {
     files: ['src/**/*.test.ts', 'src/__tests__/**/*.ts'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off'
-    }
-  }
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ];

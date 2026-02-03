@@ -1,9 +1,9 @@
-import { NextFunction,Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 import { config } from '@/config';
-import { ForbiddenError,UnAuthorizedError } from '@/core';
-import { authorize,isAuth } from '@/middlewares';
+import { ForbiddenError, UnAuthorizedError } from '@/core';
+import { authorize, isAuth } from '@/middlewares';
 
 // Mock jsonwebtoken
 jest.mock('jsonwebtoken');

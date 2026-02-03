@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import mongoose, { Model,Schema } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import mongooseDelete from 'mongoose-delete';
 import mongoosePaginate from 'mongoose-paginate-v2';

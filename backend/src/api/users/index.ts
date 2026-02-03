@@ -7,7 +7,7 @@ import { Container } from 'typedi';
 import UserController from '@/api/users/user.controller';
 import { idParamSchema, listQuerySchema } from '@/common';
 import { Controller } from '@/core';
-import { authorize,isAuth } from '@/middlewares';
+import { authorize, isAuth } from '@/middlewares';
 
 import { createUserSchema, updateUserSchema } from './user.validation';
 

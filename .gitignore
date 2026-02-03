@@ -64,3 +64,5 @@ frontend/build
 
 compose/mongo/keys/*
 !compose/mongo/keys/keyfile.local
+
+.sisyphus

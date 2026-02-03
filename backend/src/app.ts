@@ -10,7 +10,7 @@ import swaggerUi from 'swagger-ui-express';
 
 import api from '@/api';
 import { healthHandler } from '@/api/health';
-import { config,generateOpenApiDocs } from '@/config';
+import { config, generateOpenApiDocs } from '@/config';
 import {
   errorHandle,
   logErrors,

@@ -3,4 +3,4 @@ import QueryBuilder from './query-builder.helper';
 import handleResponse from './response.helper';
 import * as utils from './utils.helper';
 
-export { applyPlugin,handleResponse, QueryBuilder, utils };
+export { applyPlugin, handleResponse, QueryBuilder, utils };

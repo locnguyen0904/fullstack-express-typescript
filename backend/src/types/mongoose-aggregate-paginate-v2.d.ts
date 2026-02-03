@@ -1,4 +1,4 @@
-import { Aggregate,Schema } from 'mongoose';
+import { Aggregate, Schema } from 'mongoose';
 
 declare module 'mongoose-aggregate-paginate-v2' {
   export interface AggregatePaginateOptions {

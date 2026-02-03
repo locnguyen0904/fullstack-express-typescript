@@ -1,4 +1,4 @@
-import { Document, FilterQuery,Model } from 'mongoose';
+import { Document, FilterQuery, Model } from 'mongoose';
 import { PaginateModel, PaginateOptions } from 'mongoose-paginate-v2';
 
 declare module 'mongoose' {
