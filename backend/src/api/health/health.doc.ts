@@ -1,5 +1,6 @@
-import { registry } from '@/config/openapi.config';
 import { z } from 'zod';
+
+import { registry } from '@/config/openapi.config';
 
 const healthSchema = z.object({
   status: z.enum(['ok', 'error']),

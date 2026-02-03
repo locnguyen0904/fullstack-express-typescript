@@ -1,7 +1,8 @@
-import { config } from '@/config';
-import { ForbiddenError, UnAuthorizedError } from '@/core';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+
+import { config } from '@/config';
+import { ForbiddenError, UnAuthorizedError } from '@/core';
 
 interface TokenPayload {
   sub: string;

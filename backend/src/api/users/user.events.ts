@@ -1,6 +1,8 @@
 import { Container } from 'typedi';
-import EventService, { EventNames } from '@/services/event.service';
+
 import { logger } from '@/services';
+import EventService, { EventNames } from '@/services/event.service';
+
 import { IUser } from './user.model';
 
 const events = Container.get(EventService);

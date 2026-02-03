@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { Service } from 'typedi';
+
 import { IUser } from '@/api/users/user.model';
 
 export const EventNames = {

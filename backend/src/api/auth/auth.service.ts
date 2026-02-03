@@ -1,11 +1,13 @@
-import { Service } from 'typedi';
 import jwt from 'jsonwebtoken';
-import { config } from '@/config';
-import UserService from '@/api/users/user.service';
-import { UnAuthorizedError } from '@/core';
+import { Service } from 'typedi';
+
 import { IUser } from '@/api/users/user.model';
-import { AuthTokens } from './auth.interface';
+import UserService from '@/api/users/user.service';
+import { config } from '@/config';
+import { UnAuthorizedError } from '@/core';
 import logger from '@/services/logger.service';
+
+import { AuthTokens } from './auth.interface';
 
 @Service()
 export default class AuthService {

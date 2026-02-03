@@ -1,6 +1,7 @@
-import morgan, { StreamOptions } from 'morgan';
-import { logger } from '@/services';
 import { Request } from 'express';
+import morgan, { StreamOptions } from 'morgan';
+
+import { logger } from '@/services';
 
 const stream: StreamOptions = {
   // Use the http severity

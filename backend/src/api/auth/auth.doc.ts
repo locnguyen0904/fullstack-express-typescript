@@ -1,11 +1,13 @@
-import { registry } from '@/config/openapi.config';
 import { z } from 'zod';
-import { loginSchema } from './auth.validation';
+
 import {
   baseSuccessSchema,
   dataResponseSchema,
   errorResponseSchema,
 } from '@/common';
+import { registry } from '@/config/openapi.config';
+
+import { loginSchema } from './auth.validation';
 
 const tokenResponseSchema = z.object({
   token: z

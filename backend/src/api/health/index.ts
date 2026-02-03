@@ -1,8 +1,10 @@
+import './health.doc';
+
 import { Request, Response, Router } from 'express';
 import mongoose from 'mongoose';
 import Container from 'typedi';
+
 import { RedisService } from '@/services';
-import './health.doc';
 
 export const healthHandler = async (_req: Request, res: Response) => {
   const dbReady = mongoose.connection.readyState === 1;

@@ -1,5 +1,6 @@
 import { Document, Model } from 'mongoose';
-import { Service, NotFoundError } from '@/core';
+
+import { NotFoundError,Service } from '@/core';
 
 // Mock document type
 interface IMockDoc extends Document {

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
+import User from '@/api/users/user.model';
 import { config } from '@/config';
 import { logger } from '@/services';
-import User from '@/api/users/user.model';
 
 (async () => {
   try {

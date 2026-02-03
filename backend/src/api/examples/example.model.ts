@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
-import mongoosePaginate from 'mongoose-paginate-v2';
-import mongooseDelete from 'mongoose-delete';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import mongooseDelete from 'mongoose-delete';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 import { BaseDocument } from '@/core';
 import { applyPlugin } from '@/helpers';

@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
-import logger from './logger.service';
+
 import { config } from '@/config';
+
+import logger from './logger.service';
 
 const MONGODB_OPTIONS: mongoose.ConnectOptions = {
   maxPoolSize: 10,

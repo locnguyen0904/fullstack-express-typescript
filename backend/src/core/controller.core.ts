@@ -1,10 +1,12 @@
 import 'reflect-metadata';
+
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { Document } from 'mongoose';
 
-import Service from './service.core';
-import { NotFoundError } from './response-error.core';
 import { CREATED, LIST, OK } from '@/core/response-success.core';
+
+import { NotFoundError } from './response-error.core';
+import Service from './service.core';
 
 class Controller<T extends Document, S extends Service<T>> {
   protected service: S;

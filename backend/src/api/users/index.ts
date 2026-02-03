@@ -1,12 +1,15 @@
+import './user.doc';
+
 import { Router } from 'express';
 import validate from 'express-zod-safe';
 import { Container } from 'typedi';
+
 import UserController from '@/api/users/user.controller';
-import { Controller } from '@/core';
-import { isAuth, authorize } from '@/middlewares';
-import { createUserSchema, updateUserSchema } from './user.validation';
 import { idParamSchema, listQuerySchema } from '@/common';
-import './user.doc';
+import { Controller } from '@/core';
+import { authorize,isAuth } from '@/middlewares';
+
+import { createUserSchema, updateUserSchema } from './user.validation';
 
 const router = Router();
 const controller = Container.get(UserController);

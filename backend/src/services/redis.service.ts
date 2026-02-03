@@ -1,6 +1,8 @@
 import Redis from 'ioredis';
 import { Service } from 'typedi';
+
 import { config } from '@/config';
+
 import logger from './logger.service';
 
 @Service()

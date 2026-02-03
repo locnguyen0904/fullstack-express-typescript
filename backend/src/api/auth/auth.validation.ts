@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { registry } from '@/config/openapi.config';
 
 export const loginSchema = registry.register(

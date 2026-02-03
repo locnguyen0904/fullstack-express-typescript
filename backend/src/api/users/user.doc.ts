@@ -1,6 +1,5 @@
-import { registry } from '@/config/openapi.config';
 import { z } from 'zod';
-import { createUserSchema, updateUserSchema } from './user.validation';
+
 import { idParamSchema } from '@/common';
 import { listQuerySchema } from '@/common';
 import {
@@ -8,6 +7,9 @@ import {
   errorResponseSchema,
   listResponseSchema,
 } from '@/common';
+import { registry } from '@/config/openapi.config';
+
+import { createUserSchema, updateUserSchema } from './user.validation';
 
 const bearerAuth = registry.registerComponent('securitySchemes', 'bearerAuth', {
   type: 'http',

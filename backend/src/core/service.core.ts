@@ -1,13 +1,14 @@
 import 'reflect-metadata';
+
 import {
+  Document,
   FilterQuery,
   Model,
-  UpdateQuery,
-  QueryOptions,
-  Document,
-  ToObjectOptions,
   PaginateModelWithDeleted,
+  QueryOptions,
   SoftDeleteModel,
+  ToObjectOptions,
+  UpdateQuery,
 } from 'mongoose';
 
 import { NotFoundError } from '@/core/response-error.core';

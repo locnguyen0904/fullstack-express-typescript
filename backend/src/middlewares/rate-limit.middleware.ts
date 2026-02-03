@@ -1,7 +1,8 @@
+import { Request } from 'express';
 import rateLimit, { Options } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
-import { Request } from 'express';
 import Container from 'typedi';
+
 import { RedisService } from '@/services';
 
 let redisStore: RedisStore | undefined;

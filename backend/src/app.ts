@@ -1,25 +1,26 @@
 import 'reflect-metadata';
-import express, { Express, Request, Response } from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
+import '@/api/users/user.events';
+
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import express, { Express, Request, Response } from 'express';
+import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 
+import api from '@/api';
+import { healthHandler } from '@/api/health';
+import { config,generateOpenApiDocs } from '@/config';
 import {
   errorHandle,
   logErrors,
   notFoundHandle,
 } from '@/helpers/handle-errors.helper';
 import {
-  morganMiddleware,
   apiLimiter,
+  morganMiddleware,
   requestIdMiddleware,
 } from '@/middlewares';
-import { generateOpenApiDocs, config } from '@/config';
-import api from '@/api';
-import { healthHandler } from '@/api/health';
-import '@/api/users/user.events';
 
 const rootApi = '/api/v1';
 

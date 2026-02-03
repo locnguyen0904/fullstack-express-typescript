@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
+
 import AuthService from '@/api/auth/auth.service';
 import { SuccessResponse, UnAuthorizedError } from '@/core';
 

@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
+
+import { NextFunction, Request, Response } from 'express';
 
 export const requestIdMiddleware = (
   req: Request,

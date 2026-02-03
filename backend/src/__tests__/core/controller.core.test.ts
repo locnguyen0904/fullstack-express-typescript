@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Document } from 'mongoose';
-import { Controller, Service, NotFoundError } from '@/core';
+
+import { Controller, NotFoundError,Service } from '@/core';
 
 // Mock document type
 interface IMockDoc extends Document {

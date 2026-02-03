@@ -1,13 +1,16 @@
 import 'reflect-metadata';
+import './example.doc';
+
 import { Router } from 'express';
 import validate from 'express-zod-safe';
 import { Container } from 'typedi';
-import { createExampleSchema, updateExampleSchema } from './example.validation';
+
 import { idParamSchema, listQuerySchema } from '@/common';
-import ExampleController from './example.controller';
 import { Controller } from '@/core';
-import { isAuth, authorize } from '@/middlewares';
-import './example.doc';
+import { authorize,isAuth } from '@/middlewares';
+
+import ExampleController from './example.controller';
+import { createExampleSchema, updateExampleSchema } from './example.validation';
 
 const router: Router = Router();
 const controller = Container.get(ExampleController);

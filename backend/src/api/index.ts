@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import examples from './examples';
+
 import auth from './auth';
-import users from './users';
+import examples from './examples';
 import health from './health';
+import users from './users';
 
 const router: Router = Router();
 

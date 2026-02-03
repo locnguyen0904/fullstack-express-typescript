@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { registry } from '@/config/openapi.config';
+
 import { userRoles } from '@/api/users/user.model';
+import { registry } from '@/config/openapi.config';
 
 export const createUserSchema = registry.register(
   'CreateUser',
