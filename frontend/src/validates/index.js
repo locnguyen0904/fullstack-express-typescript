@@ -1,13 +1,13 @@
 import {
-  required,
-  minLength,
+  choices,
+  email,
   maxLength,
-  minValue,
   maxValue,
+  minLength,
+  minValue,
   number,
   regex,
-  email,
-  choices,
+  required,
 } from "react-admin";
 
 const validateFirstName = [required(), minLength(2), maxLength(15)];
@@ -20,6 +20,6 @@ export {
   validateAge,
   validateEmail,
   validateFirstName,
-  validateZipCode,
   validateSex,
+  validateZipCode,
 };

@@ -1,4 +1,4 @@
-import { List, Datagrid, TextField, TextInput } from "react-admin";
+import { Datagrid, List, TextField, TextInput } from "react-admin";
 
 const exampleFilters = [
   <TextInput key="1" label="Title" source="title" alwaysOn />,

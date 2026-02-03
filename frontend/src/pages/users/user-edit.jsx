@@ -1,4 +1,4 @@
-import { Edit, SimpleForm, TextInput, required } from "react-admin";
+import { Edit, required, SimpleForm, TextInput } from "react-admin";
 
 import { validateEmail } from "../../validates";
 

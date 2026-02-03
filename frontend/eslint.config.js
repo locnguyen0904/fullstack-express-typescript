@@ -3,6 +3,7 @@ const react = require("eslint-plugin-react");
 const reactHooks = require("eslint-plugin-react-hooks");
 const prettier = require("eslint-plugin-prettier");
 const prettierConfig = require("eslint-config-prettier");
+const simpleImportSort = require("eslint-plugin-simple-import-sort");
 
 module.exports = [
   js.configs.recommended,
@@ -46,9 +47,27 @@ module.exports = [
       react,
       "react-hooks": reactHooks,
       prettier,
+      "simple-import-sort": simpleImportSort,
     },
     rules: {
       ...prettierConfig.rules,
+      // Import sorting
+      "simple-import-sort/imports": [
+        "error",
+        {
+          groups: [
+            // Side effects
+            ["^\\u0000"],
+            // React first
+            ["^react", "^react-dom"],
+            // External packages
+            ["^@?\\w"],
+            // Relative imports
+            ["^\\."],
+          ],
+        },
+      ],
+      "simple-import-sort/exports": "error",
       // Code quality rules
       eqeqeq: ["error", "always", { null: "ignore" }],
       "no-console": "off",

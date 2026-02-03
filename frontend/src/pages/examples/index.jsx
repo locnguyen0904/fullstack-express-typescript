@@ -1,7 +1,8 @@
 import ArticleIcon from "@mui/icons-material/Article";
-import ExampleList from "./example-list";
-import ExampleEdit from "./example-edit";
+
 import ExampleCreate from "./example-create";
+import ExampleEdit from "./example-edit";
+import ExampleList from "./example-list";
 
 export default {
   list: ExampleList,

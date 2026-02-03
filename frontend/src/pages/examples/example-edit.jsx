@@ -1,4 +1,4 @@
-import { Edit, SimpleForm, TextInput, required } from "react-admin";
+import { Edit, required, SimpleForm, TextInput } from "react-admin";
 
 const ExampleTitle = ({ record }) => {
   return <span>Example {record ? record.title : ""}</span>;

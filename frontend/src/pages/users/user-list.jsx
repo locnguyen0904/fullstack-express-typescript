@@ -1,4 +1,4 @@
-import { List, Datagrid, TextField, EmailField, TextInput } from "react-admin";
+import { Datagrid, EmailField, List, TextField, TextInput } from "react-admin";
 
 const userFilters = [
   <TextInput key="1" label="Email" source="email" alwaysOn />,
