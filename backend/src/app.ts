@@ -18,6 +18,9 @@ import {
 } from '@/helpers/handle-errors.helper';
 import {
   apiLimiter,
+  csrfErrorHandler,
+  csrfProtection,
+  csrfTokenHandler,
   morganMiddleware,
   requestIdMiddleware,
 } from '@/middlewares';
@@ -49,6 +52,11 @@ app.use(morganMiddleware);
 app.use(compression());
 
 app.use(cookieParser());
+
+// CSRF Protection
+app.get('/api/v1/csrf-token', csrfTokenHandler);
+app.use(rootApi, csrfProtection);
+app.use(csrfErrorHandler);
 
 // Parse requests
 app.use(express.urlencoded({ extended: true }));
