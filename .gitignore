@@ -65,4 +65,20 @@ frontend/build
 compose/mongo/keys/*
 !compose/mongo/keys/keyfile.local
 
-.sisyphus
+# BMAD caches / temp / runtime files
+_bmad/cache/
+_bmad/temp/
+_bmad/agent-cache/
+_bmad/inflight/
+
+# BMAD generated outputs
+_bmad-output/
+bmad-output/
+bmad-artifacts/
+
+# User-specific config (optional - tùy team policy)
+_bmad/bmm/config.yaml
+
+# Flattened codebase (generated tool output)
+flattened-codebase.xml
+*.stats.md

@@ -1,12 +1,10 @@
 # Claude AI Instructions
 
-> This file provides context and rules for Claude AI when working on this project.
-
 ## Project Overview
 
-This is a full-stack web application template with:
+Full-stack web application template:
 
-- **Backend:** Express.js + TypeScript with MongoDB
+- **Backend:** Express.js + TypeScript + MongoDB
 - **Frontend:** React Admin
 - **Infrastructure:** Docker Compose (MongoDB, Redis, Backend, Frontend)
 
@@ -26,44 +24,45 @@ cd backend && npm run build       # Build project
 cd backend && npm run prettier:fix && npm run lint:fix
 ```
 
-## Architecture Rules
+## Architecture
 
-### Controller-Service-Model Pattern
+### Controller-Service-Repository-Model Pattern
 
-| Layer      | File Pattern      | Responsibility                                    |
-| ---------- | ----------------- | ------------------------------------------------- |
-| Controller | `*.controller.ts` | HTTP handling, input parsing, call services       |
-| Service    | `*.service.ts`    | Business logic, throw errors (not HTTP responses) |
-| Model      | `*.model.ts`      | Mongoose schema, TypeScript interfaces            |
+| Layer      | File Pattern        | Responsibility                          |
+| ---------- | ------------------- | --------------------------------------- |
+| Controller | `*.controller.ts`   | HTTP handling, call services            |
+| Service    | `*.service.ts`      | Business logic, uses repository         |
+| Repository | `*.repository.ts`   | Data access, extends base `Repository`  |
+| Model      | `*.model.ts`        | Mongoose schema, TypeScript interfaces  |
 
-### Key Constraints
+### Key Rules
 
-1. **Controllers** must extend `Controller` base class
-2. **Services** must extend `Service` base class and never access `req`/`res`
-3. **All inputs** must be validated with Zod at route level
-4. **All routes** must be registered in OpenAPI registry
+1. **Controllers** - standalone classes, inject Service via TypeDI
+2. **Services** - standalone classes, inject Repository, never access `req`/`res`
+3. **Repositories** - extend `Repository<T>` base class from `@/core`
+4. **All inputs** validated with Zod at route level
+5. **All routes** registered in OpenAPI registry
 
-## Code Standards
-
-### File Structure (`backend/src`)
+## File Structure (`backend/src`)
 
 ```
 api/              # Feature modules
 ├── {resource}/
 │   ├── {resource}.controller.ts
 │   ├── {resource}.service.ts
+│   ├── {resource}.repository.ts
 │   ├── {resource}.model.ts
 │   ├── {resource}.validation.ts
 │   ├── {resource}.doc.ts
 │   └── index.ts
-core/             # Base classes (Controller, Service, Response)
+core/             # Repository base class, Response classes, Errors
 config/           # App configuration (Env, OpenAPI)
-helpers/          # Utilities (Error handling, Response formatting)
+helpers/          # Utilities (asyncHandler, Error handling)
 middlewares/      # Express middlewares (Auth, Logging, RateLimit)
 __tests__/        # Test files (mirrors src structure)
 ```
 
-### Naming Conventions
+## Naming Conventions
 
 | Type                | Convention      | Example                      |
 | ------------------- | --------------- | ---------------------------- |
@@ -72,7 +71,7 @@ __tests__/        # Test files (mirrors src structure)
 | Variables/Functions | camelCase       | `getUserById`                |
 | Interfaces          | Prefix with `I` | `IUser`, `IExample`          |
 
-### OpenAPI Documentation
+## OpenAPI Documentation
 
 ```typescript
 // *.validation.ts - Register schemas
@@ -87,7 +86,7 @@ registry.registerPath({
 });
 ```
 
-### Error Handling
+## Error Handling
 
 - Use `AppError` for operational errors
 - Use `NotFoundError` for missing resources
@@ -113,8 +112,8 @@ registry.registerPath({
 
 ## Do NOT
 
-- ❌ Write YAML/JSON for OpenAPI manually
-- ❌ Use callbacks or `.then()` - always `async/await`
-- ❌ Access `req`/`res` in Services
-- ❌ Put business logic in Controllers
-- ❌ Skip input validation
+- Write YAML/JSON for OpenAPI manually
+- Use callbacks or `.then()` - always `async/await`
+- Access `req`/`res` in Services
+- Put business logic in Controllers
+- Skip input validation
