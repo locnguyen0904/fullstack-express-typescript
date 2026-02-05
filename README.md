@@ -1,7 +1,7 @@
 # Backend Template
 
-[![CI](https://github.com/YOUR_USERNAME/backend-template/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/backend-template/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/YOUR_USERNAME/backend-template/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/backend-template)
+[![CI](https://github.com/locnguyen0904/backend-template/actions/workflows/ci.yml/badge.svg)](https://github.com/locnguyen0904/backend-template/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/locnguyen0904/backend-template/branch/main/graph/badge.svg)](https://codecov.io/gh/locnguyen0904/backend-template)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](LICENSE)
 
 Production-ready Express.js + TypeScript + MongoDB backend template with best practices.
