@@ -82,3 +82,9 @@ _bmad/bmm/config.yaml
 # Flattened codebase (generated tool output)
 flattened-codebase.xml
 *.stats.md
+
+# Claude Code
+.claude/
+
+# BMAD
+_bmad/
