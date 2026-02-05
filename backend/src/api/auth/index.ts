@@ -6,7 +6,7 @@ import { Container } from 'typedi';
 
 import AuthController from '@/api/auth/auth.controller';
 import { loginSchema } from '@/api/auth/auth.validation';
-import { Controller } from '@/core';
+import { asyncHandler } from '@/helpers';
 import { authLimiter } from '@/middlewares';
 
 const router = Router();
@@ -16,15 +16,14 @@ router.post(
   '/login',
   authLimiter,
   validate({ body: loginSchema }),
-  Controller.handler(controller.login.bind(controller))
+  asyncHandler(controller.login.bind(controller))
 );
 
-// Refresh token is read from httpOnly cookie
 router.post(
   '/refresh-token',
-  Controller.handler(controller.refreshToken.bind(controller))
+  asyncHandler(controller.refreshToken.bind(controller))
 );
 
-router.post('/logout', Controller.handler(controller.logout.bind(controller)));
+router.post('/logout', asyncHandler(controller.logout.bind(controller)));
 
 export default router;

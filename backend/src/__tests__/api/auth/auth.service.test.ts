@@ -1,10 +1,14 @@
+import bcrypt from 'bcrypt';
+
 import AuthService from '@/api/auth/auth.service';
 import UserService from '@/api/users/user.service';
 
+jest.mock('bcrypt');
+
 describe('AuthService', () => {
   const userService = {
-    getUserByEmail: jest.fn(),
-    getUserById: jest.fn(),
+    findByEmailWithPassword: jest.fn(),
+    findById: jest.fn(),
   } as unknown as UserService;
 
   const authService = new AuthService(userService);
@@ -14,7 +18,7 @@ describe('AuthService', () => {
   });
 
   it('throws when email or password is invalid', async () => {
-    userService.getUserByEmail = jest.fn().mockResolvedValue(null);
+    userService.findByEmailWithPassword = jest.fn().mockResolvedValue(null);
 
     await expect(
       authService.loginWithEmailAndPassword('test@example.com', 'wrong')
@@ -22,11 +26,12 @@ describe('AuthService', () => {
   });
 
   it('returns tokens when credentials are valid', async () => {
-    userService.getUserByEmail = jest.fn().mockResolvedValue({
+    userService.findByEmailWithPassword = jest.fn().mockResolvedValue({
       id: 'user-1',
       role: 'user',
-      isPasswordMatch: jest.fn().mockResolvedValue(true),
+      password: 'hashedPassword',
     });
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
     const result = await authService.loginWithEmailAndPassword(
       'test@example.com',
@@ -47,7 +52,7 @@ describe('AuthService', () => {
       'Please authenticate'
     );
 
-    userService.getUserById = jest.fn().mockResolvedValue({
+    userService.findById = jest.fn().mockResolvedValue({
       id: 'user-1',
       role: 'user',
     });

@@ -1,9 +1,8 @@
 // Base
 export { BaseDocument } from './base-document.core';
 
-// Controller & Service
-export { default as Controller } from './controller.core';
-export { default as Service } from './service.core';
+// Repository
+export { LeanDoc, Repository } from './repository.core';
 
 // Errors
 export {

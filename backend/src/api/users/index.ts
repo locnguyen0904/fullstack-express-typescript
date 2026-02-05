@@ -6,7 +6,7 @@ import { Container } from 'typedi';
 
 import UserController from '@/api/users/user.controller';
 import { idParamSchema, listQuerySchema } from '@/common';
-import { Controller } from '@/core';
+import { asyncHandler } from '@/helpers';
 import { authorize, isAuth } from '@/middlewares';
 
 import { createUserSchema, updateUserSchema } from './user.validation';
@@ -19,35 +19,35 @@ router.get(
   isAuth,
   authorize('admin'),
   validate({ query: listQuerySchema }),
-  Controller.handler(controller.findAll.bind(controller))
+  asyncHandler(controller.findAll.bind(controller))
 );
 router.get(
   '/:id',
   isAuth,
   authorize('admin'),
   validate({ params: idParamSchema }),
-  Controller.handler(controller.findOne.bind(controller))
+  asyncHandler(controller.findOne.bind(controller))
 );
 router.post(
   '/',
   isAuth,
   authorize('admin'),
   validate({ body: createUserSchema }),
-  Controller.handler(controller.create.bind(controller))
+  asyncHandler(controller.create.bind(controller))
 );
 router.put(
   '/:id',
   isAuth,
   authorize('admin'),
   validate({ params: idParamSchema, body: updateUserSchema }),
-  Controller.handler(controller.update.bind(controller))
+  asyncHandler(controller.update.bind(controller))
 );
 router.delete(
   '/:id',
   isAuth,
   authorize('admin'),
   validate({ params: idParamSchema }),
-  Controller.handler(controller.delete.bind(controller))
+  asyncHandler(controller.delete.bind(controller))
 );
 
 export default router;

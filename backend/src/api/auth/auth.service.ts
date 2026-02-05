@@ -17,12 +17,18 @@ export default class AuthService {
     email: string,
     password: string
   ): Promise<{ user: IUser; tokens: AuthTokens }> {
-    const user = await this.userService.getUserByEmail(email);
-    if (!user || !(await user.isPasswordMatch(password))) {
+    const user = await this.userService.findByEmailWithPassword(email);
+    if (!user || !(await this.verifyPassword(user, password))) {
       throw new UnAuthorizedError('Incorrect email or password');
     }
     const tokens = this.generateAuthTokens(user);
     return { user, tokens };
+  }
+
+  private async verifyPassword(user: IUser, password: string): Promise<boolean> {
+    if (!user.password) return false;
+    const bcrypt = await import('bcrypt');
+    return bcrypt.compare(password, user.password);
   }
 
   async refreshAuth(refreshToken: string) {
@@ -34,7 +40,7 @@ export default class AuthService {
       if (payload.type !== 'refresh') {
         throw new UnAuthorizedError('Invalid token type');
       }
-      const user = await this.userService.getUserById(payload.sub);
+      const user = await this.userService.findById(payload.sub);
       if (!user) {
         throw new UnAuthorizedError('User not found');
       }

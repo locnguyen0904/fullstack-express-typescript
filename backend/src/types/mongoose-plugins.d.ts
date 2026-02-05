@@ -1,21 +1,17 @@
-import { Document } from 'mongoose';
+import { Document, FilterQuery, Query } from 'mongoose';
 import MongooseDelete from 'mongoose-delete';
 
-/**
- * Extended soft delete model with additional helper methods
- *
- * Extends @types/mongoose-delete with convenience methods:
- * - deleteById: Soft delete by ID (returns the document)
- * - restoreById: Restore by ID (returns the document)
- */
 declare module 'mongoose' {
-  interface SoftDeleteModel<
-    T extends Document,
-  > extends MongooseDelete.SoftDeleteModel<T> {
+  interface SoftDeleteModel<T extends Document>
+    extends MongooseDelete.SoftDeleteModel<T> {
+    delete(filter?: FilterQuery<T>): Promise<{ deletedCount: number }>;
     deleteById(id: string | Document): Promise<T | null>;
     restoreById(id: string | Document): Promise<T | null>;
+    findOneWithDeleted(filter?: FilterQuery<T>): Query<T | null, T>;
+    findDeleted(filter?: FilterQuery<T>): Query<T[], T>;
   }
 
   interface PaginateModelWithDeleted<T extends Document>
-    extends PaginateModel<T>, SoftDeleteModel<T> {}
+    extends PaginateModel<T>,
+      SoftDeleteModel<T> {}
 }

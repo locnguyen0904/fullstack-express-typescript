@@ -6,7 +6,7 @@ import validate from 'express-zod-safe';
 import { Container } from 'typedi';
 
 import { idParamSchema, listQuerySchema } from '@/common';
-import { Controller } from '@/core';
+import { asyncHandler } from '@/helpers';
 import { authorize, isAuth } from '@/middlewares';
 
 import ExampleController from './example.controller';
@@ -18,12 +18,12 @@ const controller = Container.get(ExampleController);
 router.get(
   '/',
   validate({ query: listQuerySchema }),
-  Controller.handler(controller.findAll.bind(controller))
+  asyncHandler(controller.findAll.bind(controller))
 );
 router.get(
   '/:id',
   validate({ params: idParamSchema }),
-  Controller.handler(controller.findOne.bind(controller))
+  asyncHandler(controller.findOne.bind(controller))
 );
 
 router.post(
@@ -31,21 +31,21 @@ router.post(
   isAuth,
   authorize('admin'),
   validate({ body: createExampleSchema }),
-  Controller.handler(controller.create.bind(controller))
+  asyncHandler(controller.create.bind(controller))
 );
 router.put(
   '/:id',
   isAuth,
   authorize('admin'),
   validate({ params: idParamSchema, body: updateExampleSchema }),
-  Controller.handler(controller.update.bind(controller))
+  asyncHandler(controller.update.bind(controller))
 );
 router.delete(
   '/:id',
   isAuth,
   authorize('admin'),
   validate({ params: idParamSchema }),
-  Controller.handler(controller.delete.bind(controller))
+  asyncHandler(controller.delete.bind(controller))
 );
 
 export default router;
