@@ -63,14 +63,22 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// CSRF Protection - Auth-based detection
+// CSRF Protection - Only for cookie-based admin auth
 const csrfProtection = csrf({ cookie: true });
 
 app.use((req: Request, res: Response, next: NextFunction) => {
+  // Skip CSRF for Bearer token auth (API clients)
   if (req.headers.authorization?.startsWith('Bearer ')) {
     return next();
   }
-  if (!req.cookies?._csrf) {
+  // Skip CSRF for GET, HEAD, OPTIONS (safe methods)
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return next();
+  }
+  // Only validate CSRF if client sends csrf token header (admin frontend)
+  const hasCsrfToken =
+    req.headers['x-csrf-token'] || req.headers['x-xsrf-token'];
+  if (!hasCsrfToken) {
     return next();
   }
   return csrfProtection(req, res, next);
