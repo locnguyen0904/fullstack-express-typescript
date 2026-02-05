@@ -17,6 +17,8 @@ export default class AuthController {
 
     res.cookie('refreshToken', tokens.refresh.token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       path: '/api/v1/auth/refresh-token',
       expires: tokens.refresh.expires,
     });
@@ -37,6 +39,8 @@ export default class AuthController {
 
       res.cookie('refreshToken', tokens.refresh.token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         path: '/api/v1/auth/refresh-token',
         expires: tokens.refresh.expires,
       });
