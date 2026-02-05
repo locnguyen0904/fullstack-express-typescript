@@ -19,6 +19,7 @@ const envSchema = z.object({
   FIREBASE_CLIENT_EMAIL: z.string().optional(),
   FIREBASE_PRIVATE_KEY: z.string().optional(),
   REDIS_URL: z.string().optional(),
+  ALLOWED_ORIGINS: z.string().optional(),
   LOG_LEVEL: z.string().optional(),
   LOG_DIR: z.string().optional(),
 });

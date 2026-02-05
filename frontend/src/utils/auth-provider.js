@@ -1,5 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
+import csrfProvider from "./csrf-provider";
 import tokenProvider from "./token-provider";
 
 const authProvider = {
@@ -46,6 +47,7 @@ const authProvider = {
   },
   logout: () => {
     tokenProvider.removeToken();
+    csrfProvider.clearToken();
     return Promise.resolve();
   },
   getIdentity: () => {
