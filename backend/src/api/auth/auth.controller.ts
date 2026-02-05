@@ -3,6 +3,7 @@ import { Service } from 'typedi';
 
 import AuthService from '@/api/auth/auth.service';
 import { SuccessResponse, UnAuthorizedError } from '@/core';
+import { decrypt, encrypt } from '@/helpers/crypto.helper';
 
 @Service()
 export default class AuthController {
@@ -15,7 +16,7 @@ export default class AuthController {
       password
     );
 
-    res.cookie('refreshToken', tokens.refresh.token, {
+    res.cookie('refreshToken', encrypt(tokens.refresh.token), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -31,13 +32,15 @@ export default class AuthController {
 
   async refreshToken(req: Request, res: Response) {
     try {
-      const refreshToken = req.cookies.refreshToken;
-      if (!refreshToken) {
+      const encryptedToken = req.cookies.refreshToken;
+      if (!encryptedToken) {
         throw new UnAuthorizedError('No refresh token provided');
       }
+
+      const refreshToken = decrypt(encryptedToken);
       const tokens = await this.authService.refreshAuth(refreshToken);
 
-      res.cookie('refreshToken', tokens.refresh.token, {
+      res.cookie('refreshToken', encrypt(tokens.refresh.token), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

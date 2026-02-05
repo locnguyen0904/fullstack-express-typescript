@@ -4,6 +4,7 @@ import '@/api/users/user.events';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import csrf from 'csurf';
 import express, { Express, Request, Response } from 'express';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
@@ -18,9 +19,6 @@ import {
 } from '@/helpers/handle-errors.helper';
 import {
   apiLimiter,
-  csrfErrorHandler,
-  csrfProtection,
-  csrfTokenHandler,
   morganMiddleware,
   requestIdMiddleware,
 } from '@/middlewares';
@@ -53,14 +51,12 @@ app.use(compression());
 
 app.use(cookieParser());
 
-// CSRF Protection
-app.get('/api/v1/csrf-token', csrfTokenHandler);
-app.use(rootApi, csrfProtection);
-app.use(csrfErrorHandler);
-
 // Parse requests
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// CSRF Protection
+app.use(csrf({ cookie: true }));
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Welcome to backend-template API!' });
