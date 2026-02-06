@@ -289,6 +289,75 @@ backend/src/
 └── __tests__/              # Tests (mirrors src)
 ```
 
+## Security Architecture
+
+### Authentication Flow
+
+```
+Login → JWT Access Token (30min) + Encrypted Refresh Token (cookie, 30 days)
+Request → Bearer Token in Authorization header → isAuth middleware → req.user
+Refresh → Decrypt cookie → Verify JWT → Issue new tokens
+```
+
+1. **Login:** User provides email/password. Backend validates, generates JWT access token (returned in body) and refresh token (encrypted with AES-256-GCM, stored as httpOnly cookie).
+2. **Authorization:** Requests include `Authorization: Bearer {accessToken}`. The `isAuth` middleware verifies the JWT and populates `req.user` with `{ sub, role }`.
+3. **Token Refresh:** Client sends refresh token cookie to `/api/v1/auth/refresh-token`. Backend decrypts, validates, and issues new tokens.
+4. **Role-Based Access:** The `authorize(...roles)` middleware checks `req.user.role` against allowed roles.
+
+### CSRF Protection
+
+Uses the **double-submit cookie pattern** via the [`csrf-csrf`](https://github.com/Psifi-Solutions/csrf-csrf) library:
+
+```
+Frontend: GET /api/v1/csrf-token → receives token in body + hash in cookie
+Frontend: POST /api/v1/resource → sends token in X-CSRF-Token header + cookie
+Backend: Validates HMAC(token) matches cookie hash
+```
+
+**Smart bypass logic** in `csrfProtection` middleware:
+
+- **Skips** for `GET`, `HEAD`, `OPTIONS` (safe methods)
+- **Skips** for Bearer token auth (API clients are inherently CSRF-safe)
+- **Skips** when no `refreshToken` cookie exists (no session to protect — Swagger, curl, Postman)
+- **Enforces** for state-changing requests with cookie-based sessions
+
+Cookie name: `csrf` (development) or `__Host-csrf` (production, secure prefix).
+
+### Encryption
+
+AES-256-GCM authenticated encryption in `helpers/crypto.helper.ts`:
+
+- **Algorithm:** AES-256-GCM (provides confidentiality + integrity)
+- **Key Derivation:** `crypto.scryptSync` with random 16-byte salt per encryption
+- **IV:** Random 12-byte initialization vector per encryption
+- **Output Format:** `salt:iv:authTag:encrypted` (hex-encoded)
+- **Key Source:** `config.encryption.key` (dedicated `ENCRYPTION_KEY` or fallback to `JWT_SECRET`)
+
+### Middleware Stack (Order)
+
+```
+1. Swagger UI (before CORS)
+2. Helmet (security headers)
+3. CORS (configurable origins)
+4. Trust proxy
+5. Rate limiting (100 req/15min global, 5 req/15min auth)
+6. Request ID injection
+7. Morgan HTTP logging
+8. Compression (gzip)
+9. Body parsing (JSON, URL-encoded)
+10. Cookie parsing
+11. CSRF protection
+12. Routes
+13. Error handling (404, global error handler)
+```
+
+### Rate Limiting
+
+- **Global:** 100 requests per 15 minutes on `/api/v1/*`
+- **Auth:** 5 login attempts per 15 minutes
+- **Storage:** Redis (with in-memory fallback)
+- **Key:** User ID (`req.user.sub`) → IP (`req.ip`) → `'unknown'`
+
 ## Design Decisions
 
 ### No Base Controller/Service Classes

@@ -57,12 +57,23 @@ JWT_SECRET=your-secret-key-min-32-chars-long
 JWT_ACCESS_EXPIRATION_MINUTES=30
 JWT_REFRESH_EXPIRATION_DAYS=30
 
-# Redis (for caching)
+# Encryption (for refresh token cookies, min 32 chars)
+# Defaults to JWT_SECRET if not set
+ENCRYPTION_KEY=your-encryption-key-min-32-chars
+
+# Redis (for caching and rate limiting)
 REDIS_URL=redis://redis:6379
 
 # Server
 PORT=3000
 NODE_ENV=development
+
+# CORS (comma-separated origins for production)
+ALLOWED_ORIGINS=http://localhost:3001,http://localhost:3000
+
+# Logging
+LOG_LEVEL=debug
+LOG_DIR=logs
 
 # MongoDB (Docker)
 MONGO_INITDB_ROOT_USERNAME=admin
@@ -293,8 +304,32 @@ npm test -- --testPathPattern=user.service
 }
 ```
 
+## CSRF Token Setup (Frontend)
+
+When building a frontend that uses cookie-based auth (refresh tokens), you need to handle CSRF:
+
+1. **Get a CSRF token** before making state-changing requests:
+
+   ```bash
+   GET /api/v1/csrf-token
+   # Response: { "csrfToken": "..." }
+   # Also sets a csrf cookie
+   ```
+
+2. **Include the token** in mutation requests:
+
+   ```bash
+   POST /api/v1/auth/login
+   X-CSRF-Token: <token-from-step-1>
+   ```
+
+3. **API clients using Bearer tokens** skip CSRF automatically.
+4. **Swagger UI / curl** skip CSRF when no auth cookies are present.
+
 ## Next Steps
 
 1. Read [CONTRIBUTING.md](../CONTRIBUTING.md) for Git workflow
 2. Read [ARCHITECTURE.md](ARCHITECTURE.md) for design decisions
-3. Check [CLAUDE.md](../CLAUDE.md) for AI-assisted development
+3. Read [API.md](API.md) for endpoint reference
+4. Read [../SECURITY.md](../SECURITY.md) for security details
+5. Check [CLAUDE.md](../CLAUDE.md) for AI-assisted development

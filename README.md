@@ -8,18 +8,21 @@ Production-ready Express.js + TypeScript + MongoDB backend template with best pr
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Runtime | Node.js 22 + TypeScript 5 |
-| Framework | Express.js 4 |
-| Database | MongoDB 8 + Mongoose |
-| Cache | Redis 6 |
-| Validation | Zod 4 |
-| API Docs | OpenAPI 3 (auto-generated) |
-| Auth | JWT (access + refresh tokens) |
-| DI | TypeDI |
-| Testing | Jest 30 + Supertest |
-| Container | Docker Compose |
+| Layer      | Technology                       |
+| ---------- | -------------------------------- |
+| Runtime    | Node.js 22 + TypeScript 5        |
+| Framework  | Express.js 5                     |
+| Database   | MongoDB 8 + Mongoose 8           |
+| Cache      | Redis 6                          |
+| Validation | Zod 4                            |
+| API Docs   | OpenAPI 3 (auto-generated)       |
+| Auth       | JWT (access + refresh tokens)    |
+| CSRF       | Double-submit cookie (csrf-csrf) |
+| Encryption | AES-256-GCM                      |
+| DI         | TypeDI                           |
+| Testing    | Jest 30 + Supertest              |
+| Container  | Docker Compose                   |
+| Frontend   | React Admin 5 + Vite 7           |
 
 ## Quick Start
 
@@ -38,12 +41,12 @@ docker compose logs -f backend
 
 **Access points:**
 
-| Service | URL |
-|---------|-----|
-| Backend API | http://localhost:3000/api/v1 |
-| Swagger UI | http://localhost:3000/api-docs |
-| Health Check | http://localhost:3000/health |
-| Frontend | http://localhost:3001 |
+| Service      | URL                            |
+| ------------ | ------------------------------ |
+| Backend API  | http://localhost:3000/api/v1   |
+| Swagger UI   | http://localhost:3000/api-docs |
+| Health Check | http://localhost:3000/health   |
+| Frontend     | http://localhost:3001          |
 
 ## Architecture
 
@@ -51,12 +54,12 @@ docker compose logs -f backend
 Request → Routes → Controller → Service → Repository → Model → MongoDB
 ```
 
-| Layer | File | Responsibility |
-|-------|------|----------------|
-| Controller | `*.controller.ts` | HTTP handling, call services |
-| Service | `*.service.ts` | Business logic, uses repository |
-| Repository | `*.repository.ts` | Data access, extends `Repository<T>` |
-| Model | `*.model.ts` | Mongoose schema, TypeScript interface |
+| Layer      | File              | Responsibility                        |
+| ---------- | ----------------- | ------------------------------------- |
+| Controller | `*.controller.ts` | HTTP handling, call services          |
+| Service    | `*.service.ts`    | Business logic, uses repository       |
+| Repository | `*.repository.ts` | Data access, extends `Repository<T>`  |
+| Model      | `*.model.ts`      | Mongoose schema, TypeScript interface |
 
 ## Project Structure
 
@@ -74,7 +77,7 @@ backend/src/
 ├── core/                   # Repository base, Response classes, Errors
 ├── config/                 # Environment, OpenAPI config
 ├── helpers/                # Utilities (asyncHandler, etc.)
-├── middlewares/            # Auth, logging, rate limiting
+├── middlewares/            # Auth, CSRF, logging, rate limiting
 ├── services/               # Shared services (Redis, Logger, Events)
 └── __tests__/              # Test files (mirrors src structure)
 ```
@@ -100,31 +103,38 @@ npm run seed:dev                  # Seed database
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | MongoDB connection string | Yes |
-| `JWT_SECRET` | Secret for JWT signing | Yes |
-| `JWT_ACCESS_EXPIRATION_MINUTES` | Access token expiry (default: 30) | No |
-| `JWT_REFRESH_EXPIRATION_DAYS` | Refresh token expiry (default: 30) | No |
-| `REDIS_URL` | Redis connection string | No |
-| `PORT` | Server port (default: 3000) | No |
+| Variable                        | Description                                                       | Required |
+| ------------------------------- | ----------------------------------------------------------------- | -------- |
+| `DATABASE_URL`                  | MongoDB connection string                                         | Yes      |
+| `JWT_SECRET`                    | Secret for JWT signing (min 32 chars)                             | Yes      |
+| `JWT_ACCESS_EXPIRATION_MINUTES` | Access token expiry (default: 30)                                 | No       |
+| `JWT_REFRESH_EXPIRATION_DAYS`   | Refresh token expiry (default: 30)                                | No       |
+| `ENCRYPTION_KEY`                | AES-256-GCM encryption key (min 32 chars, defaults to JWT_SECRET) | No       |
+| `REDIS_URL`                     | Redis connection string                                           | No       |
+| `ALLOWED_ORIGINS`               | CORS origins, comma-separated                                     | No       |
+| `PORT`                          | Server port (default: 3000)                                       | No       |
 
 ## Features
 
-- **Security:** Helmet, rate limiting, CORS, bcrypt password hashing
+- **Security:** Helmet, CSRF protection (double-submit cookie), rate limiting, CORS, bcrypt password hashing, AES-256-GCM encryption
+- **Auth:** JWT access/refresh tokens, encrypted refresh token cookies, role-based access control
 - **Validation:** Zod schemas with auto-generated OpenAPI docs
-- **Database:** Pagination, soft delete, Redis caching
-- **Testing:** Jest with ~77% coverage
-- **DX:** Hot reload, path aliases (`@/`), ESLint + Prettier
+- **Database:** Pagination, soft delete, Redis caching, repository pattern
+- **Testing:** Jest with 90+ tests
+- **DX:** Hot reload, path aliases (`@/`), ESLint + Prettier, Docker Compose
+- **Frontend:** React Admin with CSRF-aware auth flow
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [CLAUDE.md](CLAUDE.md) | AI coding assistant instructions |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Git flow, code standards |
-| [docs/SETUP.md](docs/SETUP.md) | Detailed development setup |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Design decisions |
+| Document                                     | Description                      |
+| -------------------------------------------- | -------------------------------- |
+| [docs/SETUP.md](docs/SETUP.md)               | Detailed development setup       |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Design decisions and patterns    |
+| [docs/API.md](docs/API.md)                   | API endpoint reference           |
+| [SECURITY.md](SECURITY.md)                   | Security architecture and policy |
+| [CONTRIBUTING.md](CONTRIBUTING.md)           | Git flow, code standards         |
+| [DOCKER.md](DOCKER.md)                       | Docker and deployment guide      |
+| [CLAUDE.md](CLAUDE.md)                       | AI coding assistant instructions |
 
 ## License
 
