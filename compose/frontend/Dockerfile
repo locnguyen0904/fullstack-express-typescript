@@ -3,7 +3,7 @@
 #   Local: docker build --target development -f dockerfile.frontend -t frontend:dev .
 #   Prod:  docker build --target production -f dockerfile.frontend -t frontend:prod .
 
-FROM node:22.12-alpine AS base
+FROM node:24-alpine AS base
 
 # Create non-root user
 RUN addgroup -g 1001 app && \

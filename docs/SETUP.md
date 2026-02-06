@@ -8,7 +8,7 @@ Detailed instructions for setting up the development environment.
 | -------------- | -------- | ------------------------ |
 | Docker         | >= 20.10 | `docker --version`       |
 | Docker Compose | >= 2.0   | `docker compose version` |
-| Node.js        | >= 22.0  | `node --version`         |
+| Node.js        | >= 24.0  | `node --version`         |
 | npm            | >= 10.0  | `npm --version`          |
 
 ## Quick Setup (Docker)
