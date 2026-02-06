@@ -26,9 +26,14 @@ interface IRedisConfig {
   url?: string;
 }
 
+interface IEncryptionConfig {
+  key: string;
+}
+
 interface IConfig {
   mongodb: IDatabaseConfig;
   jwt: IJwtConfig;
+  encryption: IEncryptionConfig;
   admin: IAdminConfig;
   firebase: IFirebaseConfig;
   redis: IRedisConfig;
@@ -44,6 +49,9 @@ const config: IConfig = {
     secret: env.JWT_SECRET,
     accessExpirationMinutes: env.JWT_ACCESS_EXPIRATION_MINUTES,
     refreshExpirationDays: env.JWT_REFRESH_EXPIRATION_DAYS,
+  },
+  encryption: {
+    key: env.ENCRYPTION_KEY || env.JWT_SECRET,
   },
   admin: {
     name: env.ADMIN_NAME,

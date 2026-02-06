@@ -4,8 +4,7 @@ import '@/api/users/user.events';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import csrf from 'csurf';
-import express, { Express, NextFunction, Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 
@@ -22,6 +21,10 @@ import {
   morganMiddleware,
   requestIdMiddleware,
 } from '@/middlewares';
+import {
+  csrfProtection,
+  csrfTokenHandler,
+} from '@/middlewares/csrf.middleware';
 
 const rootApi = '/api/v1';
 
@@ -38,7 +41,7 @@ app.use(
   cors({
     origin:
       config.env === 'production'
-        ? env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3001']
+        ? env.ALLOWED_ORIGINS?.split(',')
         : true,
     credentials: true,
   })
@@ -63,30 +66,9 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// CSRF Protection - Only for cookie-based admin auth
-const csrfProtection = csrf({ cookie: true });
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  // Skip CSRF for Bearer token auth (API clients)
-  if (req.headers.authorization?.startsWith('Bearer ')) {
-    return next();
-  }
-  // Skip CSRF for GET, HEAD, OPTIONS (safe methods)
-  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return next();
-  }
-  // Only validate CSRF if client sends csrf token header (admin frontend)
-  const hasCsrfToken =
-    req.headers['x-csrf-token'] || req.headers['x-xsrf-token'];
-  if (!hasCsrfToken) {
-    return next();
-  }
-  return csrfProtection(req, res, next);
-});
-
-app.get('/api/v1/csrf-token', csrfProtection, (req: Request, res: Response) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+// CSRF Protection
+app.use(csrfProtection);
+app.get('/api/v1/csrf-token', csrfTokenHandler);
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Welcome to backend-template API!' });

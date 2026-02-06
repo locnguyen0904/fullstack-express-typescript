@@ -88,3 +88,9 @@ flattened-codebase.xml
 
 # BMAD
 _bmad/
+
+# Codex
+.codex/
+
+# Gemini
+.gemini/

@@ -5,11 +5,18 @@ import tokenProvider from "./token-provider";
 
 const authProvider = {
   // authentication
-  login: ({ username, password }) => {
+  login: async ({ username, password }) => {
+    await csrfProvider.fetchToken();
+    const headers = new Headers({ "Content-Type": "application/json" });
+    const csrf = csrfProvider.getToken();
+    if (csrf) {
+      headers.set("X-CSRF-Token", csrf);
+    }
     const request = new Request("/api/v1/auth/login", {
       method: "POST",
       body: JSON.stringify({ email: username, password }),
-      headers: new Headers({ "Content-Type": "application/json" }),
+      headers,
+      credentials: "include",
     });
     return fetch(request)
       .then((response) => {
