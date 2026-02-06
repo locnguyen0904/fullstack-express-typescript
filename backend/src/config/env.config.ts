@@ -22,6 +22,10 @@ interface IFirebaseConfig {
   privateKey: string;
 }
 
+interface ICorsConfig {
+  allowedOrigins?: string[];
+}
+
 interface IRedisConfig {
   url?: string;
 }
@@ -34,6 +38,7 @@ interface IConfig {
   mongodb: IDatabaseConfig;
   jwt: IJwtConfig;
   encryption: IEncryptionConfig;
+  cors: ICorsConfig;
   admin: IAdminConfig;
   firebase: IFirebaseConfig;
   redis: IRedisConfig;
@@ -52,6 +57,9 @@ const config: IConfig = {
   },
   encryption: {
     key: env.ENCRYPTION_KEY || env.JWT_SECRET,
+  },
+  cors: {
+    allowedOrigins: env.ALLOWED_ORIGINS?.split(','),
   },
   admin: {
     name: env.ADMIN_NAME,

@@ -10,7 +10,7 @@ import swaggerUi from 'swagger-ui-express';
 
 import api from '@/api';
 import { healthHandler } from '@/api/health';
-import { config, env, generateOpenApiDocs } from '@/config';
+import { config, generateOpenApiDocs } from '@/config';
 import {
   errorHandle,
   logErrors,
@@ -41,7 +41,7 @@ app.use(
   cors({
     origin:
       config.env === 'production'
-        ? env.ALLOWED_ORIGINS?.split(',')
+        ? config.cors.allowedOrigins
         : true,
     credentials: true,
   })
