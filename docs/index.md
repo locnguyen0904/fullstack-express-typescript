@@ -15,6 +15,7 @@
 ## Operations
 
 - [Docker Guide](../DOCKER.md) - Multi-stage builds, development/production, volumes, deployment
+- [Deployment](DEPLOYMENT.md) - Google Cloud Run deployment, CI/CD pipeline, GCP infrastructure setup
 - [Security](../SECURITY.md) - Security features, production checklist, vulnerability reporting
 
 ## Contributing

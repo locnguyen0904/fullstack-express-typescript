@@ -1,0 +1,163 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main, develop]
+
+env:
+  BACKEND_IMAGE: backend-api
+  FRONTEND_IMAGE: frontend-app
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: read
+      id-token: write
+
+    outputs:
+      backend-url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+            echo "suffix=-prod" >> $GITHUB_OUTPUT
+          else
+            echo "env=staging" >> $GITHUB_OUTPUT
+            echo "suffix=-staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Backend image
+        run: |
+          docker build \
+            --target production \
+            -f compose/backend/Dockerfile \
+            -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.BACKEND_IMAGE }}:${{ github.sha }} \
+            -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.BACKEND_IMAGE }}:latest \
+            .
+
+      - name: Push Backend image
+        run: |
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.BACKEND_IMAGE }}:latest
+
+      - name: Deploy Backend to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.BACKEND_IMAGE }}${{ steps.env.outputs.suffix }}
+          region: ${{ secrets.GCP_REGION }}
+          image: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          flags: |
+            --memory=512Mi
+            --cpu=1
+            --min-instances=0
+            --max-instances=10
+            --timeout=300
+            --concurrency=80
+            --port=3000
+            --set-secrets=DATABASE_URL=database-url:latest,JWT_SECRET=jwt-secret:latest,ENCRYPTION_KEY=encryption-key:latest,REDIS_URL=redis-url:latest,ADMIN_PASSWORD=admin-password:latest
+          env_vars: |
+            NODE_ENV=production
+            PORT=3000
+            LOG_LEVEL=info
+            ADMIN_NAME=Super Admin
+            ADMIN_EMAIL=admin@example.com
+
+      - name: Show Backend URL
+        run: echo "Backend deployed to ${{ steps.deploy.outputs.url }}"
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+            echo "suffix=-prod" >> $GITHUB_OUTPUT
+          else
+            echo "env=staging" >> $GITHUB_OUTPUT
+            echo "suffix=-staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Frontend image
+        run: |
+          docker build \
+            --target production \
+            -f compose/frontend/Dockerfile \
+            --build-arg VITE_API_URL=${{ needs.deploy-backend.outputs.backend-url }} \
+            -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.FRONTEND_IMAGE }}:${{ github.sha }} \
+            -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.FRONTEND_IMAGE }}:latest \
+            .
+
+      - name: Push Frontend image
+        run: |
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.FRONTEND_IMAGE }}:latest
+
+      - name: Deploy Frontend to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.FRONTEND_IMAGE }}${{ steps.env.outputs.suffix }}
+          region: ${{ secrets.GCP_REGION }}
+          image: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-template/${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          flags: |
+            --memory=256Mi
+            --cpu=1
+            --min-instances=0
+            --max-instances=5
+            --timeout=60
+            --concurrency=200
+            --port=80
+            --allow-unauthenticated
+
+      - name: Show Frontend URL
+        run: echo "Frontend deployed to ${{ steps.deploy.outputs.url }}"

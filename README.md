@@ -162,6 +162,7 @@ npm run seed:dev                  # Seed database
 | 🔐 [Security](SECURITY.md) | Security architecture and policy |
 | 🤝 [Contributing](CONTRIBUTING.md) | Git flow, code standards |
 | 🐳 [Docker](DOCKER.md) | Docker and deployment guide |
+| 🚀 [Deployment](docs/DEPLOYMENT.md) | Google Cloud Run deployment |
 | 🤖 [Claude AI](CLAUDE.md) | AI coding assistant instructions |
 
 ---
