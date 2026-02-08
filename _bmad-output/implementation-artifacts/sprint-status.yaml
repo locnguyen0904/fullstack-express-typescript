@@ -1,0 +1,71 @@
+# Sprint Status - Backend Template Modernization
+#
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-02-08
+project: backend-template
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Critical Security Fixes
+  epic-1: done
+  1-1-replace-csurf-with-csrf-csrf: done
+  1-2-replace-bcrypt-with-argon2: done
+  1-3-add-request-body-size-limits: done
+  1-4-update-ci-to-node-24: done
+  epic-1-retrospective: optional
+
+  # Epic 2: Developer Experience Improvements
+  epic-2: done
+  2-1-replace-ts-node-nodemon-with-tsx: done
+  2-2-add-lint-staged-for-pre-commit: done
+  2-3-remove-asynchandler-wrapper: done
+  2-4-add-plop-module-scaffolding: done
+  epic-2-retrospective: optional
+
+  # Epic 3: Production Readiness
+  epic-3: done
+  3-1-add-opentelemetry-observability: done
+  3-2-add-bullmq-job-queue: done
+  3-3-replace-winston-morgan-with-pino: done
+  3-4-upgrade-errors-to-rfc-9457: done
+  3-5-add-container-image-scanning-ci: done
+  3-6-add-mongodb-memory-server: done
+  epic-3-retrospective: optional
+
+  # Epic 4: Architecture Improvements
+  epic-4: done
+  4-1-replace-typedi-with-tsyringe: done
+  4-2-add-jwt-token-revocation: done
+  4-3-add-architectural-decision-records: done
+  4-4-update-documentation: done
+  epic-4-retrospective: optional
