@@ -5,100 +5,87 @@ import { ZodError } from 'zod';
 import { AppError, InternalServerError, NotFoundError } from '@/core';
 import { logger } from '@/services';
 
-import Response from './response.helper';
+interface ProblemDetail {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  instance: string;
+  code?: string;
+  errors?: { message: string; code: string }[];
+  stack?: string;
+}
 
-const getZodError = (
-  error: ZodError
-): {
-  message: string;
-  code: string;
-  details: { message: string; code: string }[];
-} => {
-  const details = error.issues.map((issue) => ({
-    message: `${issue.path.join('.')}: ${issue.message}`,
-    code: issue.code,
-  }));
-
-  return {
-    message: 'Invalid request data. Please review the request and try again.',
-    code: 'VALIDATION_ERROR',
-    details,
-  };
-};
-
-const isDuplicateKeyError = (
-  error: unknown
-): error is { code: number; keyValue?: Record<string, unknown> } => {
-  if (!error || typeof error !== 'object') return false;
-  return 'code' in error && (error as { code?: number }).code === 11000;
-};
-
-const getDuplicateKeyError = (error: {
-  keyValue?: Record<string, unknown>;
-}): {
-  message: string;
-  code: string;
-  details?: { field: string }[];
-} => {
-  const keyValue = error.keyValue ?? {};
-  const fields = Object.keys(keyValue);
-
-  if (fields.length === 0) {
-    return {
-      message: 'Duplicate key error',
-      code: 'DUPLICATE_KEY',
-    };
-  }
-
-  return {
-    message: `Duplicate value for ${fields.join(', ')}`,
-    code: 'DUPLICATE_KEY',
-    details: fields.map((field) => ({ field })),
-  };
-};
+function sendProblem(res: ExpressResponse, problem: ProblemDetail): void {
+  res.status(problem.status).type('application/problem+json').json(problem);
+}
 
 export const errorHandle = (
   error: unknown,
-  _req: Request,
+  req: Request,
   res: ExpressResponse,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void => {
   const includeStack = process.env.NODE_ENV !== 'production';
+  const instance = req.originalUrl;
 
   if (error instanceof AppError) {
-    const { message, status, stack } = error;
-    const code = typeof error.code === 'string' ? error.code : undefined;
-    const payload = {
-      message,
-      code,
-      ...(includeStack && stack ? { stack } : {}),
-    };
-    Response.error(res, payload, status);
+    sendProblem(res, {
+      type: error.type,
+      title: error.title,
+      status: error.status,
+      detail: error.message,
+      instance,
+      code: typeof error.code === 'string' ? error.code : undefined,
+      ...(includeStack && error.stack ? { stack: error.stack } : {}),
+    });
     return;
   }
 
   if (error instanceof ZodError) {
-    const zodError = getZodError(error);
-    Response.error(res, zodError, 400);
+    const errors = error.issues.map((issue) => ({
+      message: `${issue.path.join('.')}: ${issue.message}`,
+      code: issue.code,
+    }));
+    sendProblem(res, {
+      type: 'about:blank',
+      title: 'Bad Request',
+      status: 400,
+      detail: 'Invalid request data. Please review the request and try again.',
+      instance,
+      code: 'VALIDATION_ERROR',
+      errors,
+    });
     return;
   }
 
   if (isDuplicateKeyError(error)) {
-    const duplicateKeyError = getDuplicateKeyError(error);
-    Response.error(res, duplicateKeyError, 409);
+    const keyValue = error.keyValue ?? {};
+    const fields = Object.keys(keyValue);
+    sendProblem(res, {
+      type: 'about:blank',
+      title: 'Conflict',
+      status: 409,
+      detail:
+        fields.length > 0
+          ? `Duplicate value for ${fields.join(', ')}`
+          : 'Duplicate key error',
+      instance,
+      code: 'DUPLICATE_KEY',
+    });
     return;
   }
 
   if (error instanceof mongoose.Error.CastError) {
-    Response.error(
-      res,
-      {
-        message: 'Invalid ObjectId format',
-        code: 'INVALID_OBJECT_ID',
-      },
-      400
-    );
+    sendProblem(res, {
+      type: 'about:blank',
+      title: 'Bad Request',
+      status: 400,
+      detail: 'Invalid ObjectId format',
+      instance,
+      code: 'INVALID_OBJECT_ID',
+    });
     return;
   }
 
@@ -108,15 +95,25 @@ export const errorHandle = (
       ? new InternalServerError(err.message)
       : new InternalServerError();
   internalError.stack = err.stack;
-  const { message, status, stack } = internalError;
-  const code =
-    typeof internalError.code === 'string' ? internalError.code : undefined;
-  const payload = {
-    message,
-    code,
-    ...(includeStack && stack ? { stack } : {}),
-  };
-  Response.error(res, payload, status);
+  sendProblem(res, {
+    type: internalError.type,
+    title: internalError.title,
+    status: internalError.status,
+    detail: internalError.message,
+    instance,
+    code:
+      typeof internalError.code === 'string' ? internalError.code : undefined,
+    ...(includeStack && internalError.stack
+      ? { stack: internalError.stack }
+      : {}),
+  });
+};
+
+const isDuplicateKeyError = (
+  error: unknown
+): error is { code: number; keyValue?: Record<string, unknown> } => {
+  if (!error || typeof error !== 'object') return false;
+  return 'code' in error && (error as { code?: number }).code === 11000;
 };
 
 export const logErrors = (
@@ -125,13 +122,15 @@ export const logErrors = (
   _res: ExpressResponse,
   next: NextFunction
 ): void => {
-  logger.error('Request failed', {
-    message: err.message,
-    stack: err.stack,
-    requestId: req.requestId,
-    method: req.method,
-    url: req.originalUrl,
-  });
+  logger.error(
+    {
+      err,
+      requestId: req.requestId,
+      method: req.method,
+      url: req.originalUrl,
+    },
+    'Request failed'
+  );
   next(err);
 };
 

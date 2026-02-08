@@ -1,11 +1,11 @@
 import Redis from 'ioredis';
-import { Service } from 'typedi';
+import { singleton } from 'tsyringe';
 
 import { config } from '@/config';
 
 import logger from './logger.service';
 
-@Service()
+@singleton()
 export default class RedisService {
   private client: Redis | null = null;
 
@@ -35,7 +35,7 @@ export default class RedisService {
       });
 
       this.client.on('error', (err) =>
-        logger.error('Redis error', { error: err.message })
+        logger.error({ error: err.message }, 'Redis error')
       );
       this.client.on('close', () => logger.warn('Redis connection closed'));
 
@@ -43,7 +43,7 @@ export default class RedisService {
       logger.info('Redis connected');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      logger.error('Redis connection failed', { error: message });
+      logger.error({ error: message }, 'Redis connection failed');
       this.client = null;
     }
   }
@@ -67,7 +67,7 @@ export default class RedisService {
       const value = await this.client!.get(key);
       return value ? (JSON.parse(value) as T) : null;
     } catch (error) {
-      logger.error('Redis get failed', { key, error });
+      logger.error({ key, error }, 'Redis get failed');
       return null;
     }
   }
@@ -79,7 +79,7 @@ export default class RedisService {
       await this.client!.set(key, JSON.stringify(value), 'EX', ttl);
       return true;
     } catch (error) {
-      logger.error('Redis set failed', { key, error });
+      logger.error({ key, error }, 'Redis set failed');
       return false;
     }
   }
@@ -91,7 +91,7 @@ export default class RedisService {
       await this.client!.del(...keys);
       return true;
     } catch (error) {
-      logger.error('Redis del failed', { keys, error });
+      logger.error({ keys, error }, 'Redis del failed');
       return false;
     }
   }
@@ -113,7 +113,7 @@ export default class RedisService {
         if (keys.length > 0) await this.client!.del(...keys);
       } while (cursor !== '0');
     } catch (error) {
-      logger.error('Redis delByPrefix failed', { prefix, error });
+      logger.error({ prefix, error }, 'Redis delByPrefix failed');
     }
   }
 
@@ -123,7 +123,7 @@ export default class RedisService {
     try {
       return await this.client!.incr(key);
     } catch (error) {
-      logger.error('Redis incr failed', { key, error });
+      logger.error({ key, error }, 'Redis incr failed');
       return 0;
     }
   }
@@ -135,7 +135,7 @@ export default class RedisService {
       await this.client!.expire(key, seconds);
       return true;
     } catch (error) {
-      logger.error('Redis expire failed', { key, error });
+      logger.error({ key, error }, 'Redis expire failed');
       return false;
     }
   }

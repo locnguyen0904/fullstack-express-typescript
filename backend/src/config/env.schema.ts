@@ -21,7 +21,11 @@ const envSchema = z.object({
   REDIS_URL: z.string().optional(),
   ALLOWED_ORIGINS: z.string().optional(),
   LOG_LEVEL: z.string().optional(),
-  LOG_DIR: z.string().optional(),
+  OTEL_ENABLED: z.string().optional(),
+  OTEL_EXPORTER_ENDPOINT: z.string().optional(),
+  OTEL_SERVICE_NAME: z.string().optional(),
+  BULL_BOARD_USERNAME: z.string().default('admin'),
+  BULL_BOARD_PASSWORD: z.string().default('admin'),
 });
 
 const parsed = envSchema.safeParse(process.env);

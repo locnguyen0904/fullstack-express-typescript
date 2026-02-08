@@ -1,8 +1,11 @@
+import 'reflect-metadata';
+
 import http from 'http';
 
-import Container from 'typedi';
+import { container } from 'tsyringe';
 
 import app from './app';
+import { initializeJobs, shutdownJobs } from './jobs';
 import { logger, mongoose, RedisService } from './services';
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -20,14 +23,15 @@ async function gracefulShutdown(
 
   try {
     await Promise.all([
+      shutdownJobs(),
       mongoose.disconnectDB(),
-      Container.get(RedisService).disconnect(),
+      container.resolve(RedisService).disconnect(),
     ]);
 
     logger.info('All connections closed gracefully');
     process.exit(0);
   } catch (error) {
-    logger.error('Error during graceful shutdown', { error });
+    logger.error({ error }, 'Error during graceful shutdown');
     process.exit(1);
   }
 }
@@ -58,7 +62,8 @@ function initGracefulShutdown(server: http.Server): void {
 async function bootstrap(): Promise<void> {
   try {
     await mongoose.connectDB();
-    await Container.get(RedisService).connect();
+    await container.resolve(RedisService).connect();
+    await initializeJobs();
 
     const server = http.createServer(app);
     initGracefulShutdown(server);
@@ -67,17 +72,17 @@ async function bootstrap(): Promise<void> {
       logger.info(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server', { error });
+    logger.error({ error }, 'Failed to start server');
     process.exit(1);
   }
 }
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection', { reason, promise });
+  logger.error({ reason, promise }, 'Unhandled Rejection');
 });
 
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception', { error });
+  logger.error({ error }, 'Uncaught Exception');
   process.exit(1);
 });
 

@@ -1,0 +1,51 @@
+import { Request, Response } from 'express';
+import { inject, singleton } from 'tsyringe';
+
+import { CREATED, LIST, NotFoundError, OK } from '@/core';
+
+import {{pascalCase name}}Service from './{{kebabCase name}}.service';
+
+@singleton()
+export default class {{pascalCase name}}Controller {
+  constructor(@inject({{pascalCase name}}Service) private readonly {{camelCase name}}Service: {{pascalCase name}}Service) {}
+
+  async create(req: Request, res: Response): Promise<void> {
+    const {{camelCase name}} = await this.{{camelCase name}}Service.create(req.body);
+    new CREATED({ data: {{camelCase name}} }).send(res);
+  }
+
+  async findOne(req: Request, res: Response): Promise<void> {
+    const {{camelCase name}} = await this.{{camelCase name}}Service.findById(req.params.id);
+    if (!{{camelCase name}}) {
+      throw new NotFoundError('{{pascalCase name}} not found');
+    }
+    new OK({ data: {{camelCase name}} }).send(res);
+  }
+
+  async findAll(req: Request, res: Response): Promise<void> {
+    const result = await this.{{camelCase name}}Service.findAll(req.query);
+    new LIST({
+      data: result.docs,
+      total: result.totalDocs,
+      page: result.page,
+      pages: result.totalPages,
+      limit: result.limit,
+    }).send(res);
+  }
+
+  async update(req: Request, res: Response): Promise<void> {
+    const {{camelCase name}} = await this.{{camelCase name}}Service.update(req.params.id, req.body);
+    if (!{{camelCase name}}) {
+      throw new NotFoundError('{{pascalCase name}} not found');
+    }
+    new OK({ data: {{camelCase name}} }).send(res);
+  }
+
+  async delete(req: Request, res: Response): Promise<void> {
+    const {{camelCase name}} = await this.{{camelCase name}}Service.softDelete(req.params.id);
+    if (!{{camelCase name}}) {
+      throw new NotFoundError('{{pascalCase name}} not found');
+    }
+    new OK({ data: {{camelCase name}} }).send(res);
+  }
+}

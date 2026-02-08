@@ -6,14 +6,14 @@ Guidelines for contributing to this project.
 
 ### Branch Strategy
 
-| Branch | Purpose | Naming |
-|--------|---------|--------|
-| `main` | Production-ready code | Protected |
-| `feature/*` | New features | `feature/add-user-auth` |
-| `fix/*` | Bug fixes | `fix/login-validation` |
-| `refactor/*` | Code improvements | `refactor/user-service` |
-| `docs/*` | Documentation only | `docs/update-readme` |
-| `chore/*` | Build, deps, config | `chore/upgrade-mongoose` |
+| Branch       | Purpose               | Naming                   |
+| ------------ | --------------------- | ------------------------ |
+| `main`       | Production-ready code | Protected                |
+| `feature/*`  | New features          | `feature/add-user-auth`  |
+| `fix/*`      | Bug fixes             | `fix/login-validation`   |
+| `refactor/*` | Code improvements     | `refactor/user-service`  |
+| `docs/*`     | Documentation only    | `docs/update-readme`     |
+| `chore/*`    | Build, deps, config   | `chore/upgrade-mongoose` |
 
 ### Workflow
 
@@ -48,27 +48,27 @@ Format: `<type>(<scope>): <description>`
 
 ### Types
 
-| Type | When to Use |
-|------|-------------|
-| `feat` | New feature |
-| `fix` | Bug fix |
+| Type       | When to Use                  |
+| ---------- | ---------------------------- |
+| `feat`     | New feature                  |
+| `fix`      | Bug fix                      |
 | `refactor` | Code change (no feature/fix) |
-| `docs` | Documentation only |
-| `test` | Adding/updating tests |
-| `chore` | Build, config, dependencies |
-| `style` | Formatting (no code change) |
-| `perf` | Performance improvement |
+| `docs`     | Documentation only           |
+| `test`     | Adding/updating tests        |
+| `chore`    | Build, config, dependencies  |
+| `style`    | Formatting (no code change)  |
+| `perf`     | Performance improvement      |
 
 ### Scopes
 
-| Scope | Area |
-|-------|------|
-| `auth` | Authentication module |
-| `users` | Users module |
-| `examples` | Examples module |
-| `core` | Core (Repository, Errors) |
-| `config` | Configuration |
-| `deps` | Dependencies |
+| Scope      | Area                      |
+| ---------- | ------------------------- |
+| `auth`     | Authentication module     |
+| `users`    | Users module              |
+| `examples` | Examples module           |
+| `core`     | Core (Repository, Errors) |
+| `config`   | Configuration             |
+| `deps`     | Dependencies              |
 
 ### Examples
 
@@ -114,34 +114,28 @@ npm test                # Run tests
 
 ## Creating a New Module
 
+Use the Plop generator for scaffolding:
+
 ```bash
-# 1. Create directory
-mkdir -p backend/src/api/products
-
-# 2. Create files
-touch backend/src/api/products/{product.model,product.repository,product.service,product.controller,product.validation,product.doc,index}.ts
-
-# 3. Implement in order
-# - model.ts      → Schema + Interface
-# - repository.ts → extends Repository<IProduct>
-# - service.ts    → Business logic
-# - validation.ts → Zod schemas
-# - controller.ts → HTTP handlers
-# - doc.ts        → OpenAPI registration
-# - index.ts      → Routes
-
-# 4. Register in api/index.ts
+cd backend
+npm run generate        # Interactive prompt
+# or
+npx plop module products  # Direct
 ```
 
-### Module Template
+This creates all 8 files (model, repository, service, controller, validation, doc, routes, test) with correct patterns.
+
+### Manual Creation
+
+If creating manually, follow this pattern:
 
 ```typescript
 // product.repository.ts
-import { Service } from 'typedi';
-import { Repository } from '@/core';
-import Product, { IProduct } from './product.model';
+import { singleton } from "tsyringe";
+import { Repository } from "@/core";
+import Product, { IProduct } from "./product.model";
 
-@Service()
+@singleton()
 export class ProductRepository extends Repository<IProduct> {
   constructor() {
     super(Product);
@@ -149,13 +143,16 @@ export class ProductRepository extends Repository<IProduct> {
 }
 
 // product.service.ts
-import { Service } from 'typedi';
-import { ProductRepository } from './product.repository';
-import { IProduct } from './product.model';
+import { inject, singleton } from "tsyringe";
+import { ProductRepository } from "./product.repository";
+import { IProduct } from "./product.model";
 
-@Service()
+@singleton()
 export class ProductService {
-  constructor(private readonly productRepository: ProductRepository) {}
+  constructor(
+    @inject(ProductRepository)
+    private readonly productRepository: ProductRepository,
+  ) {}
 
   async create(data: Partial<IProduct>): Promise<IProduct> {
     return this.productRepository.create(data);
@@ -172,6 +169,7 @@ export class ProductService {
 ### PR Title
 
 Use same format as commits:
+
 ```
 feat(users): add profile picture upload
 ```
@@ -180,14 +178,17 @@ feat(users): add profile picture upload
 
 ```markdown
 ## Summary
+
 Brief description of changes.
 
 ## Changes
+
 - Added X
 - Updated Y
 - Fixed Z
 
 ## Testing
+
 - [ ] Unit tests added
 - [ ] Manual testing done
 ```

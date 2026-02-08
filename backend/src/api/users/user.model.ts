@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import argon2 from 'argon2';
 import mongoose, { Model, Schema } from 'mongoose';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import mongooseDelete from 'mongoose-delete';
@@ -68,7 +68,12 @@ const UserSchema = new Schema<IUser, IUserModel>(
 
 UserSchema.pre('save', async function (next) {
   if (this.isModified('password') && this.password) {
-    this.password = await bcrypt.hash(this.password, 8);
+    this.password = await argon2.hash(this.password, {
+      type: argon2.argon2id,
+      memoryCost: 19456,
+      timeCost: 2,
+      parallelism: 1,
+    });
   }
   next();
 });
@@ -77,7 +82,7 @@ UserSchema.methods.isPasswordMatch = async function (
   password: string
 ): Promise<boolean> {
   if (!this.password) return false;
-  return bcrypt.compare(password, this.password);
+  return argon2.verify(this.password, password);
 };
 
 UserSchema.statics.isEmailTaken = async function (

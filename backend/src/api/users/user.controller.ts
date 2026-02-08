@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { Service } from 'typedi';
+import { inject, singleton } from 'tsyringe';
 
 import UserService from '@/api/users/user.service';
 import { CREATED, LIST, NotFoundError, OK } from '@/core';
 
-@Service()
+@singleton()
 export default class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(@inject(UserService) private readonly userService: UserService) {}
 
   async create(req: Request, res: Response): Promise<void> {
     const user = await this.userService.create(req.body);

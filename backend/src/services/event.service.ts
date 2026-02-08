@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { Service } from 'typedi';
+import { singleton } from 'tsyringe';
 
 import { IUser } from '@/api/users/user.model';
 
@@ -8,7 +8,7 @@ export const EventNames = {
   UserDeleted: 'user.deleted',
 } as const;
 
-@Service()
+@singleton()
 export default class EventService extends EventEmitter {
   emitUserCreated(user: IUser) {
     this.emit(EventNames.UserCreated, user);

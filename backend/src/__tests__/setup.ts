@@ -2,7 +2,7 @@
 import 'reflect-metadata';
 
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || 'mongodb://localhost:27017/test';
+  process.env.MONGO_MEMORY_URI || 'mongodb://localhost:27017/test';
 process.env.JWT_SECRET =
   process.env.JWT_SECRET || 'test-secret-key-should-be-long-enough-32';
 process.env.JWT_ACCESS_EXPIRATION_MINUTES =

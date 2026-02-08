@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import { Service } from 'typedi';
+import { inject, singleton } from 'tsyringe';
 
 import AuthService from '@/api/auth/auth.service';
 import { SuccessResponse, UnAuthorizedError } from '@/core';
 import { decrypt, encrypt } from '@/helpers/crypto.helper';
 
-@Service()
+@singleton()
 export default class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(@inject(AuthService) private authService: AuthService) {}
 
   async login(req: Request, res: Response) {
     const { email, password } = req.body;
@@ -58,7 +58,13 @@ export default class AuthController {
     }
   }
 
-  async logout(_req: Request, res: Response) {
+  async logout(req: Request, res: Response) {
+    // Revoke the access token if present
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      await this.authService.revokeAccessToken(authHeader.split(' ')[1]);
+    }
+
     res.clearCookie('refreshToken', { path: '/api/v1/auth/refresh-token' });
     new SuccessResponse({ message: 'Logout successfully' }).send(res);
   }

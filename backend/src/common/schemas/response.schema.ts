@@ -22,21 +22,23 @@ export const listResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
   });
 
 export const errorResponseSchema = registry.register(
-  'ErrorResponse',
+  'ProblemDetail',
   z.object({
-    success: z.literal(false),
-    error: z.object({
-      message: z.string(),
-      code: z.string().optional(),
-      stack: z.string().optional(),
-      details: z
-        .array(
-          z.object({
-            message: z.string(),
-            code: z.string(),
-          })
-        )
-        .optional(),
-    }),
+    type: z.string().openapi({ example: 'about:blank' }),
+    title: z.string().openapi({ example: 'Not Found' }),
+    status: z.number().openapi({ example: 404 }),
+    detail: z
+      .string()
+      .openapi({ example: 'The requested resource was not found.' }),
+    instance: z.string().openapi({ example: '/api/v1/examples/123' }),
+    code: z.string().optional().openapi({ example: 'NOT_FOUND' }),
+    errors: z
+      .array(
+        z.object({
+          message: z.string(),
+          code: z.string(),
+        })
+      )
+      .optional(),
   })
 );

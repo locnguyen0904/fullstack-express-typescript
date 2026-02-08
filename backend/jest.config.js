@@ -6,6 +6,8 @@ module.exports = {
   },
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts'],
+  globalSetup: '<rootDir>/src/__tests__/globalSetup.ts',
+  globalTeardown: '<rootDir>/src/__tests__/globalTeardown.ts',
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
 
   // Coverage configuration
@@ -24,10 +26,10 @@ module.exports = {
   coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
   coverageThreshold: {
     global: {
-      branches: 30,
-      functions: 25,
-      lines: 50,
-      statements: 50,
+      branches: 60,
+      functions: 60,
+      lines: 70,
+      statements: 70,
     },
   },
 };

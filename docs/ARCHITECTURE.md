@@ -71,7 +71,7 @@ export abstract class Repository<T extends BaseDocument> {
 ### Domain Repository Example
 
 ```typescript
-@Service()
+@singleton()
 export class UserRepository extends Repository<IUser> {
   constructor() {
     super(User);
@@ -101,34 +101,36 @@ export class UserRepository extends Repository<IUser> {
 
 ## Dependency Injection
 
-Using [TypeDI](https://github.com/typestack/typedi) for constructor injection:
+Using [tsyringe](https://github.com/microsoft/tsyringe) (by Microsoft) for constructor injection.
+
+> **Important:** Because `tsx` (esbuild) does not support `emitDecoratorMetadata`, all constructor parameters must use explicit `@inject()` decorators.
 
 ```typescript
-// Repository - injects Model
-@Service()
+// Repository - no DI params (passes static model to super)
+@singleton()
 export class UserRepository extends Repository<IUser> {
   constructor() {
     super(User);
   }
 }
 
-// Service - injects Repository
-@Service()
+// Service - injects Repository with @inject()
+@singleton()
 export class UserService {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly eventService: EventService,
+    @inject(UserRepository) private readonly userRepository: UserRepository,
+    @inject(EventService) private readonly eventService: EventService,
   ) {}
 }
 
-// Controller - injects Service
-@Service()
+// Controller - injects Service with @inject()
+@singleton()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(@inject(UserService) private readonly userService: UserService) {}
 }
 
-// Routes - gets Controller from container
-const controller = Container.get(UserController);
+// Routes - resolves Controller from container
+const controller = container.resolve(UserController);
 ```
 
 ### Why DI?
@@ -155,7 +157,7 @@ new LIST({
 }).send(res);
 
 // Errors (throw from Service or Controller)
-throw new NotFoundError("User not found"); // 404
+throw new NotFoundError("User not found"); // 404 → RFC 9457 problem detail
 throw new BadRequestError("Invalid input"); // 400
 throw new UnAuthorizedError("Not logged in"); // 401
 throw new ForbiddenError("Access denied"); // 403
@@ -185,32 +187,33 @@ throw new ForbiddenError("Access denied"); // 403
 
 ## Error Handling
 
-### asyncHandler
+### Express 5 Async Support
 
-Wraps controller methods to catch errors and forward to Express error handler:
+Express 5 natively handles rejected promises in async middleware and route handlers. No wrapper needed:
 
 ```typescript
-// helpers/async-handler.helper.ts
-export const asyncHandler = (
-  fn: (req: Request, res: Response) => Promise<void>,
-): RequestHandler => {
-  return async (req, res, next) => {
-    try {
-      await fn(req, res);
-    } catch (error) {
-      next(error);
-    }
-  };
-};
-
-// Usage in routes
-router.get("/:id", asyncHandler(controller.findOne.bind(controller)));
+// Routes bind controller methods directly
+router.get("/:id", controller.findOne.bind(controller));
 ```
 
 ### Error Flow
 
 ```
-Controller throws → asyncHandler catches → next(error) → Global Error Handler
+Controller throws → Express catches → Global Error Handler → RFC 9457 Response
+```
+
+### RFC 9457 Problem Details
+
+Error responses follow [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) format with `Content-Type: application/problem+json`:
+
+```json
+{
+  "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "User not found",
+  "instance": "/api/v1/users/123"
+}
 ```
 
 ## Validation
@@ -324,3 +327,15 @@ backend/src/
 
 - Uses `mongoose-delete` plugin
 - Hard delete available when needed
+
+## Architectural Decision Records
+
+Key decisions are documented in `docs/adr/`:
+
+| ADR | Decision |
+|-----|----------|
+| [001](adr/001-argon2-password-hashing.md) | Argon2 for password hashing |
+| [002](adr/002-tsyringe-dependency-injection.md) | tsyringe for dependency injection |
+| [003](adr/003-pino-logging.md) | Pino for logging |
+| [004](adr/004-rfc9457-error-format.md) | RFC 9457 error format |
+| [005](adr/005-opentelemetry-observability.md) | OpenTelemetry for observability |

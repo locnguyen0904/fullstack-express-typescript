@@ -29,7 +29,7 @@ export const connectDB = async (): Promise<void> => {
     logger.info(`MongoDB connected successfully in ${connectionTime}ms`);
 
     mongoose.connection.on('error', (error) => {
-      logger.error('MongoDB connection error:', error);
+      logger.error({ error }, 'MongoDB connection error');
     });
 
     mongoose.connection.on('disconnected', () => {
@@ -40,7 +40,7 @@ export const connectDB = async (): Promise<void> => {
       logger.info('MongoDB reconnected');
     });
   } catch (error) {
-    logger.error('MongoDB initial connection error:', error);
+    logger.error({ error }, 'MongoDB initial connection error');
     throw error;
   }
 };
@@ -50,7 +50,7 @@ export const disconnectDB = async (): Promise<void> => {
     await mongoose.disconnect();
     logger.info('MongoDB disconnected gracefully');
   } catch (error) {
-    logger.error('Error disconnecting from MongoDB:', error);
+    logger.error({ error }, 'Error disconnecting from MongoDB');
     throw error;
   }
 };

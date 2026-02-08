@@ -1,15 +1,15 @@
-import { Service } from 'typedi';
+import { inject, singleton } from 'tsyringe';
 
 import { IUser } from '@/api/users/user.model';
 import { UserRepository } from '@/api/users/user.repository';
 import { BadRequestError, NotFoundError } from '@/core';
 import EventService from '@/services/event.service';
 
-@Service()
+@singleton()
 export default class UserService {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly eventService: EventService
+    @inject(UserRepository) private readonly userRepository: UserRepository,
+    @inject(EventService) private readonly eventService: EventService
   ) {}
 
   async create(data: Partial<IUser>): Promise<IUser> {

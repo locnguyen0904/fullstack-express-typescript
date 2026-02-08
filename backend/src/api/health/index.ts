@@ -2,13 +2,13 @@ import './health.doc';
 
 import { Request, Response, Router } from 'express';
 import mongoose from 'mongoose';
-import Container from 'typedi';
+import { container } from 'tsyringe';
 
 import { RedisService } from '@/services';
 
 export const healthHandler = async (_req: Request, res: Response) => {
   const dbReady = mongoose.connection.readyState === 1;
-  const redisReady = Container.get(RedisService).isConnected;
+  const redisReady = container.resolve(RedisService).isConnected;
   const allHealthy = dbReady && redisReady;
 
   const payload = {

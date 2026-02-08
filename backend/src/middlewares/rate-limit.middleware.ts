@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import rateLimit, { Options } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
-import Container from 'typedi';
+import { container } from 'tsyringe';
 
 import { RedisService } from '@/services';
 
@@ -11,7 +11,7 @@ const getStore = (): RedisStore | undefined => {
   if (redisStore) return redisStore;
 
   try {
-    const client = Container.get(RedisService).instance;
+    const client = container.resolve(RedisService).instance;
     if (!client) return undefined;
 
     redisStore = new RedisStore({

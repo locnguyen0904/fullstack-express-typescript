@@ -27,7 +27,7 @@ import { logger } from '@/services';
     await mongoose.disconnect();
     console.info('=======seeded data was successfully===========');
   } catch (error) {
-    logger.error(error);
+    logger.error({ error }, 'Seed failed');
     process.exit(1);
   }
 })();

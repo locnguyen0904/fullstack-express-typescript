@@ -1,10 +1,10 @@
-import { Service } from 'typedi';
+import { singleton } from 'tsyringe';
 
 import { Repository } from '@/core';
 
 import User, { IUser } from './user.model';
 
-@Service()
+@singleton()
 export class UserRepository extends Repository<IUser> {
   constructor() {
     super(User);

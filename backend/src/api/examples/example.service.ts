@@ -1,16 +1,17 @@
 import { PaginateResult } from 'mongoose';
-import { Service } from 'typedi';
+import { inject, singleton } from 'tsyringe';
 
 import { RedisService } from '@/services';
 
 import { IExample } from './example.model';
 import { ExampleRepository } from './example.repository';
 
-@Service()
+@singleton()
 export default class ExampleService {
   constructor(
+    @inject(ExampleRepository)
     private readonly exampleRepository: ExampleRepository,
-    private readonly redis: RedisService
+    @inject(RedisService) private readonly redis: RedisService
   ) {}
 
   private async invalidateListCache() {
@@ -27,7 +28,9 @@ export default class ExampleService {
     return this.exampleRepository.findById(id);
   }
 
-  async findAll(query: Record<string, unknown> = {}): Promise<PaginateResult<IExample>> {
+  async findAll(
+    query: Record<string, unknown> = {}
+  ): Promise<PaginateResult<IExample>> {
     if (!this.redis.isConnected) {
       return this.exampleRepository.findAll(query);
     }

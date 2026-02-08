@@ -1,10 +1,10 @@
-import { Service } from 'typedi';
+import { singleton } from 'tsyringe';
 
 import { Repository } from '@/core';
 
 import Example, { IExample } from './example.model';
 
-@Service()
+@singleton()
 export class ExampleRepository extends Repository<IExample> {
   constructor() {
     super(Example);

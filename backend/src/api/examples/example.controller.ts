@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
-import { Service } from 'typedi';
+import { inject, singleton } from 'tsyringe';
 
 import { CREATED, LIST, NotFoundError, OK } from '@/core';
 
 import ExampleService from './example.service';
 
-@Service()
+@singleton()
 export default class ExampleController {
-  constructor(private readonly exampleService: ExampleService) {}
+  constructor(
+    @inject(ExampleService) private readonly exampleService: ExampleService
+  ) {}
 
   async create(req: Request, res: Response): Promise<void> {
     const example = await this.exampleService.create(req.body);

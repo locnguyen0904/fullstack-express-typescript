@@ -1,17 +1,23 @@
+import { randomUUID } from 'crypto';
+
 import jwt from 'jsonwebtoken';
-import { Service } from 'typedi';
+import { inject, singleton } from 'tsyringe';
 
 import { IUser } from '@/api/users/user.model';
 import UserService from '@/api/users/user.service';
 import { config } from '@/config';
 import { UnAuthorizedError } from '@/core';
 import logger from '@/services/logger.service';
+import TokenBlacklistService from '@/services/token-blacklist.service';
 
 import { AuthTokens } from './auth.interface';
 
-@Service()
+@singleton()
 export default class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(
+    @inject(UserService) private userService: UserService,
+    @inject(TokenBlacklistService) private tokenBlacklist: TokenBlacklistService
+  ) {}
 
   async loginWithEmailAndPassword(
     email: string,
@@ -25,10 +31,13 @@ export default class AuthService {
     return { user, tokens };
   }
 
-  private async verifyPassword(user: IUser, password: string): Promise<boolean> {
+  private async verifyPassword(
+    user: IUser,
+    password: string
+  ): Promise<boolean> {
     if (!user.password) return false;
-    const bcrypt = await import('bcrypt');
-    return bcrypt.compare(password, user.password);
+    const argon2 = await import('argon2');
+    return argon2.verify(user.password, password);
   }
 
   async refreshAuth(refreshToken: string) {
@@ -36,17 +45,26 @@ export default class AuthService {
       const payload = jwt.verify(refreshToken, config.jwt.secret) as {
         sub: string;
         type: string;
+        jti?: string;
+        exp?: number;
       };
       if (payload.type !== 'refresh') {
         throw new UnAuthorizedError('Invalid token type');
       }
+
+      // Revoke the old refresh token
+      if (payload.jti && payload.exp) {
+        const ttl = payload.exp - Math.floor(Date.now() / 1000);
+        await this.tokenBlacklist.revoke(payload.jti, ttl);
+      }
+
       const user = await this.userService.findById(payload.sub);
       if (!user) {
         throw new UnAuthorizedError('User not found');
       }
       return this.generateAuthTokens(user);
     } catch (error) {
-      logger.error('Token refresh failed', { error });
+      logger.error({ error }, 'Token refresh failed');
       throw new UnAuthorizedError('Please authenticate');
     }
   }
@@ -55,7 +73,7 @@ export default class AuthService {
     const accessTokenExpires =
       Math.floor(Date.now() / 1000) + config.jwt.accessExpirationMinutes * 60;
     const accessToken = jwt.sign(
-      { sub: user.id, role: user.role, type: 'access' },
+      { sub: user.id, role: user.role, type: 'access', jti: randomUUID() },
       config.jwt.secret,
       { expiresIn: config.jwt.accessExpirationMinutes * 60 }
     );
@@ -64,7 +82,7 @@ export default class AuthService {
       Math.floor(Date.now() / 1000) +
       config.jwt.refreshExpirationDays * 24 * 60 * 60;
     const refreshToken = jwt.sign(
-      { sub: user.id, type: 'refresh' },
+      { sub: user.id, type: 'refresh', jti: randomUUID() },
       config.jwt.secret,
       { expiresIn: `${config.jwt.refreshExpirationDays}d` }
     );
@@ -79,5 +97,20 @@ export default class AuthService {
         expires: new Date(refreshTokenExpires * 1000),
       },
     };
+  }
+
+  async revokeAccessToken(token: string): Promise<void> {
+    try {
+      const payload = jwt.verify(token, config.jwt.secret) as {
+        jti?: string;
+        exp?: number;
+      };
+      if (payload.jti && payload.exp) {
+        const ttl = payload.exp - Math.floor(Date.now() / 1000);
+        await this.tokenBlacklist.revoke(payload.jti, ttl);
+      }
+    } catch {
+      // Token might be expired — skip revocation
+    }
   }
 }

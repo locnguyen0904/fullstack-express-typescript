@@ -1,11 +1,12 @@
-import 'reflect-metadata';
 import '@/api/users/user.events';
 
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import csrf from 'csurf';
-import express, { Express, NextFunction, Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 
@@ -17,9 +18,12 @@ import {
   logErrors,
   notFoundHandle,
 } from '@/helpers/handle-errors.helper';
+import { getQueues } from '@/jobs';
 import {
   apiLimiter,
-  morganMiddleware,
+  doubleCsrfProtection,
+  generateCsrfToken,
+  httpLogger,
   requestIdMiddleware,
 } from '@/middlewares';
 
@@ -51,8 +55,8 @@ app.use(rootApi, apiLimiter);
 // Request ID
 app.use(requestIdMiddleware);
 
-// Morgan
-app.use(morganMiddleware);
+// HTTP Logger (pino-http)
+app.use(httpLogger);
 
 // Compression
 app.use(compression());
@@ -60,32 +64,15 @@ app.use(compression());
 app.use(cookieParser());
 
 // Parse requests
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
 
-// CSRF Protection - Only for cookie-based admin auth
-const csrfProtection = csrf({ cookie: true });
+// CSRF Protection - Double Submit Cookie Pattern (stateless)
+app.use(doubleCsrfProtection);
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  // Skip CSRF for Bearer token auth (API clients)
-  if (req.headers.authorization?.startsWith('Bearer ')) {
-    return next();
-  }
-  // Skip CSRF for GET, HEAD, OPTIONS (safe methods)
-  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return next();
-  }
-  // Only validate CSRF if client sends csrf token header (admin frontend)
-  const hasCsrfToken =
-    req.headers['x-csrf-token'] || req.headers['x-xsrf-token'];
-  if (!hasCsrfToken) {
-    return next();
-  }
-  return csrfProtection(req, res, next);
-});
-
-app.get('/api/v1/csrf-token', csrfProtection, (req: Request, res: Response) => {
-  res.json({ csrfToken: req.csrfToken() });
+app.get('/api/v1/csrf-token', (req: Request, res: Response) => {
+  const csrfToken = generateCsrfToken(req, res);
+  res.json({ csrfToken });
 });
 
 app.get('/', (_req: Request, res: Response) => {
@@ -93,6 +80,34 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 app.get('/health', healthHandler);
+
+// Bull Board - Queue monitoring UI (basic auth)
+const bullBoardAdapter = new ExpressAdapter();
+bullBoardAdapter.setBasePath('/admin/queues');
+createBullBoard({
+  queues: getQueues().map((q) => new BullMQAdapter(q)),
+  serverAdapter: bullBoardAdapter,
+});
+app.use(
+  '/admin/queues',
+  (req: Request, res: Response, next) => {
+    const auth = req.headers.authorization;
+    if (auth?.startsWith('Basic ')) {
+      const [username, password] = Buffer.from(auth.slice(6), 'base64')
+        .toString()
+        .split(':');
+      if (
+        username === env.BULL_BOARD_USERNAME &&
+        password === env.BULL_BOARD_PASSWORD
+      ) {
+        return next();
+      }
+    }
+    res.setHeader('WWW-Authenticate', 'Basic realm="Bull Board"');
+    res.status(401).send('Authentication required');
+  },
+  bullBoardAdapter.getRouter()
+);
 
 app.use(rootApi, api);
 

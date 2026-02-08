@@ -20,6 +20,9 @@ cd backend && npm run lint        # Check linting
 cd backend && npm test            # Run tests
 cd backend && npm run build       # Build project
 
+# Code generation
+cd backend && npm run generate    # Generate new API module (Plop)
+
 # Fix issues
 cd backend && npm run prettier:fix && npm run lint:fix
 ```
@@ -28,20 +31,21 @@ cd backend && npm run prettier:fix && npm run lint:fix
 
 ### Controller-Service-Repository-Model Pattern
 
-| Layer      | File Pattern        | Responsibility                          |
-| ---------- | ------------------- | --------------------------------------- |
-| Controller | `*.controller.ts`   | HTTP handling, call services            |
-| Service    | `*.service.ts`      | Business logic, uses repository         |
-| Repository | `*.repository.ts`   | Data access, extends base `Repository`  |
-| Model      | `*.model.ts`        | Mongoose schema, TypeScript interfaces  |
+| Layer      | File Pattern      | Responsibility                         |
+| ---------- | ----------------- | -------------------------------------- |
+| Controller | `*.controller.ts` | HTTP handling, call services           |
+| Service    | `*.service.ts`    | Business logic, uses repository        |
+| Repository | `*.repository.ts` | Data access, extends base `Repository` |
+| Model      | `*.model.ts`      | Mongoose schema, TypeScript interfaces |
 
 ### Key Rules
 
-1. **Controllers** - standalone classes, inject Service via TypeDI
+1. **Controllers** - standalone classes, inject Service via tsyringe (`@inject()` + `@singleton()`)
 2. **Services** - standalone classes, inject Repository, never access `req`/`res`
 3. **Repositories** - extend `Repository<T>` base class from `@/core`
 4. **All inputs** validated with Zod at route level
 5. **All routes** registered in OpenAPI registry
+6. **All DI constructor params** must use `@inject(Class)` (tsx/esbuild doesn't emit decorator metadata)
 
 ## File Structure (`backend/src`)
 
@@ -57,7 +61,7 @@ api/              # Feature modules
 │   └── index.ts
 core/             # Repository base class, Response classes, Errors
 config/           # App configuration (Env, OpenAPI)
-helpers/          # Utilities (asyncHandler, Error handling)
+helpers/          # Utilities (Error handling)
 middlewares/      # Express middlewares (Auth, Logging, RateLimit)
 __tests__/        # Test files (mirrors src structure)
 ```
@@ -90,7 +94,14 @@ registry.registerPath({
 
 - Use `AppError` for operational errors
 - Use `NotFoundError` for missing resources
+- Error responses follow RFC 9457 (Problem Details) format
 - Let global error handler manage response format
+
+## Logging
+
+- Uses Pino (JSON in production, pretty-print in development)
+- Logger API: `logger.error({ meta }, 'message')` (object first, message second)
+- HTTP request logging via `pino-http` middleware
 
 ## Checklist Before Committing
 

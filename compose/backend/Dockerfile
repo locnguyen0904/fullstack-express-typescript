@@ -3,7 +3,7 @@
 #   Local: docker build --target development -t backend:dev .
 #   Prod:  docker build --target production -t backend:prod .
 
-FROM node:22.12-alpine AS base
+FROM node:24-alpine AS base
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
@@ -59,7 +59,7 @@ USER app
 RUN npm ci --omit=dev
 
 # Production stage
-FROM node:22.12-alpine AS production
+FROM node:24-alpine AS production
 
 # Install dumb-init
 RUN apk add --no-cache dumb-init

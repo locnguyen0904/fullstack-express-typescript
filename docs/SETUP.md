@@ -8,7 +8,7 @@ Detailed instructions for setting up the development environment.
 | -------------- | -------- | ------------------------ |
 | Docker         | >= 20.10 | `docker --version`       |
 | Docker Compose | >= 2.0   | `docker compose version` |
-| Node.js        | >= 22.0  | `node --version`         |
+| Node.js        | >= 24.0  | `node --version`         |
 | npm            | >= 10.0  | `npm --version`          |
 
 ## Quick Setup (Docker)
@@ -242,15 +242,18 @@ PORT=3001
 
 ### TypeScript Errors in Docker
 
-**Symptom:** `Cannot find module` errors
+**Symptom:** `Cannot find module` or `sh: tsx: not found`
 
 **Solutions:**
 
 ```bash
-# Rebuild with fresh node_modules
-docker compose down -v
+# Rebuild with fresh node_modules (removes stale named volume)
+docker compose down
+docker volume rm backend-template_backend_node_modules
 docker compose up -d --build
 ```
+
+> **Why:** Docker uses a named volume for `node_modules` that persists between builds. After changing dependencies, the old volume may not have the new packages.
 
 ### Tests Failing
 

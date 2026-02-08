@@ -1,9 +1,10 @@
-import bcrypt from 'bcrypt';
+import argon2 from 'argon2';
 
 import AuthService from '@/api/auth/auth.service';
 import UserService from '@/api/users/user.service';
+import TokenBlacklistService from '@/services/token-blacklist.service';
 
-jest.mock('bcrypt');
+jest.mock('argon2');
 
 describe('AuthService', () => {
   const userService = {
@@ -11,7 +12,12 @@ describe('AuthService', () => {
     findById: jest.fn(),
   } as unknown as UserService;
 
-  const authService = new AuthService(userService);
+  const tokenBlacklist = {
+    revoke: jest.fn().mockResolvedValue(undefined),
+    isRevoked: jest.fn().mockResolvedValue(false),
+  } as unknown as TokenBlacklistService;
+
+  const authService = new AuthService(userService, tokenBlacklist);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -31,7 +37,7 @@ describe('AuthService', () => {
       role: 'user',
       password: 'hashedPassword',
     });
-    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    (argon2.verify as jest.Mock).mockResolvedValue(true);
 
     const result = await authService.loginWithEmailAndPassword(
       'test@example.com',

@@ -72,7 +72,6 @@ _bmad/agent-cache/
 _bmad/inflight/
 
 # BMAD generated outputs
-_bmad-output/
 bmad-output/
 bmad-artifacts/
 

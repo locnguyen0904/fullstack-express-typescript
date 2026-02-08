@@ -32,6 +32,7 @@ describe('Handle Errors Helper', () => {
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
+      type: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     };
     mockNext = jest.fn();
@@ -42,7 +43,7 @@ describe('Handle Errors Helper', () => {
   });
 
   describe('errorHandle', () => {
-    it('handles AppError and sends appropriate response', () => {
+    it('handles AppError with RFC 9457 format', () => {
       const error = new BadRequestError('Bad request message');
 
       errorHandle(
@@ -53,13 +54,17 @@ describe('Handle Errors Helper', () => {
       );
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.type).toHaveBeenCalledWith(
+        'application/problem+json'
+      );
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
-          error: expect.objectContaining({
-            message: 'Bad request message',
-            code: 'BAD_REQUEST',
-          }),
+          type: 'about:blank',
+          title: 'Bad Request',
+          status: 400,
+          detail: 'Bad request message',
+          instance: '/test',
+          code: 'BAD_REQUEST',
         })
       );
     });
@@ -78,9 +83,7 @@ describe('Handle Errors Helper', () => {
 
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: expect.objectContaining({
-            stack: 'Error stack trace',
-          }),
+          stack: 'Error stack trace',
         })
       );
     });
@@ -98,10 +101,10 @@ describe('Handle Errors Helper', () => {
       );
 
       const jsonCall = (mockResponse.json as jest.Mock).mock.calls[0][0];
-      expect(jsonCall.error.stack).toBeUndefined();
+      expect(jsonCall.stack).toBeUndefined();
     });
 
-    it('handles ZodError and sends 400 response', () => {
+    it('handles ZodError with RFC 9457 format', () => {
       const zodError = new ZodError([
         {
           code: 'invalid_type',
@@ -121,12 +124,18 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
-          error: expect.objectContaining({
-            message:
-              'Invalid request data. Please review the request and try again.',
-            code: 'VALIDATION_ERROR',
-          }),
+          type: 'about:blank',
+          title: 'Bad Request',
+          status: 400,
+          detail:
+            'Invalid request data. Please review the request and try again.',
+          code: 'VALIDATION_ERROR',
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              message: 'email: Expected string, received number',
+              code: 'invalid_type',
+            }),
+          ]),
         })
       );
     });
@@ -147,11 +156,11 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(409);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
-          error: expect.objectContaining({
-            message: 'Duplicate value for email',
-            code: 'DUPLICATE_KEY',
-          }),
+          type: 'about:blank',
+          title: 'Conflict',
+          status: 409,
+          detail: 'Duplicate value for email',
+          code: 'DUPLICATE_KEY',
         })
       );
     });
@@ -169,11 +178,8 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(409);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
-          error: expect.objectContaining({
-            message: 'Duplicate key error',
-            code: 'DUPLICATE_KEY',
-          }),
+          detail: 'Duplicate key error',
+          code: 'DUPLICATE_KEY',
         })
       );
     });
@@ -195,11 +201,8 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
-          error: expect.objectContaining({
-            message: 'Invalid ObjectId format',
-            code: 'INVALID_OBJECT_ID',
-          }),
+          detail: 'Invalid ObjectId format',
+          code: 'INVALID_OBJECT_ID',
         })
       );
     });
@@ -218,11 +221,10 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(500);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
-          error: expect.objectContaining({
-            message: 'Something went wrong',
-            code: 'INTERNAL_SERVER_ERROR',
-          }),
+          title: 'Internal Server Error',
+          status: 500,
+          detail: 'Something went wrong',
+          code: 'INTERNAL_SERVER_ERROR',
         })
       );
     });
@@ -241,11 +243,9 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(500);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
-          error: expect.objectContaining({
-            message: 'Internal Server Error',
-            code: 'INTERNAL_SERVER_ERROR',
-          }),
+          title: 'Internal Server Error',
+          detail: 'Internal Server Error',
+          code: 'INTERNAL_SERVER_ERROR',
         })
       );
     });
@@ -276,13 +276,15 @@ describe('Handle Errors Helper', () => {
         mockNext
       );
 
-      expect(logger.error).toHaveBeenCalledWith('Request failed', {
-        message: 'Test error',
-        stack: 'Error stack',
-        requestId: 'test-request-id',
-        method: 'GET',
-        url: '/test',
-      });
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          err: error,
+          requestId: 'test-request-id',
+          method: 'GET',
+          url: '/test',
+        }),
+        'Request failed'
+      );
       expect(mockNext).toHaveBeenCalledWith(error);
     });
   });
