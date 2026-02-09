@@ -6,8 +6,9 @@ This project uses multi-stage Dockerfiles to support both local development and 
 
 - **compose/backend/Dockerfile** - Multi-stage backend Dockerfile with `development` and `production` targets
 - **compose/frontend/Dockerfile** - Multi-stage frontend Dockerfile with `development` and `production` targets
-- **docker-compose.yml** - Local development configuration
-- **docker-compose.prod.yml** - Production configuration
+- **docker-compose.yml** - Base/shared configuration (images, healthchecks, networks, volumes)
+- **docker-compose.override.yml** - Development overrides (auto-loaded with `docker compose up`)
+- **docker-compose.prod.yml** - Production overrides (resource limits, logging, prod targets)
 
 ## Local Development
 
@@ -61,25 +62,25 @@ cp .env.prod.example .env.prod
 ### Start production services
 
 ```bash
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod up -d
 ```
 
 ### Build production images
 
 ```bash
-docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml build
 ```
 
 ### View production logs
 
 ```bash
-docker compose -f docker-compose.prod.yml logs -f
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
 ```
 
 ### Stop production services
 
 ```bash
-docker compose -f docker-compose.prod.yml down
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```
 
 ## Docker Build Targets
@@ -159,7 +160,8 @@ docker build --target production -f compose/frontend/Dockerfile -t frontend:prod
 
 ### Production Volumes
 
-- `mongo_data` - MongoDB data (persistent)
+- `mongo_data` - MongoDB data (persistent, backup priority: critical)
+- `redis_data` - Redis persistence data (backup priority: medium)
 - No source code volumes (built into images)
 
 ## Best Practices
@@ -241,7 +243,7 @@ docker compose up -d --build backend
 ### Scale services (production)
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d --scale backend=3
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --scale backend=3
 ```
 
 Note: Requires load balancer configuration for proper traffic distribution.

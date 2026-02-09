@@ -55,6 +55,7 @@ backend/dump/*
 backend/test
 
 .env
+.env.prod
 
 backend/logs/*
 !backend/logs/.gitkeep

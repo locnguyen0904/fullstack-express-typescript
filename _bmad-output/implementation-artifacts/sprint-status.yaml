@@ -77,3 +77,10 @@ development_status:
   5-3-add-backend-healthcheck: review
   5-4-update-frontend-depends-on: review
   epic-5-retrospective: optional
+
+  # Epic 6: Compose Configuration Refactoring
+  epic-6: in-progress
+  6-1-refactor-base-override-compose: review
+  6-2-add-volume-labels: review
+  6-3-remove-prod-container-names: review
+  epic-6-retrospective: optional

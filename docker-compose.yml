@@ -1,8 +1,12 @@
 volumes:
   mongo_data:
+    labels:
+      com.backend-template.description: "MongoDB data directory"
+      com.backend-template.backup-priority: "critical"
   redis_data:
-  backend_node_modules:
-  frontend_node_modules:
+    labels:
+      com.backend-template.description: "Redis persistence data"
+      com.backend-template.backup-priority: "medium"
 
 networks:
   app-network:
@@ -10,20 +14,16 @@ networks:
 
 services:
   mongo:
-    container_name: backend-template_mongo
     build:
       context: .
       dockerfile: compose/mongo/Dockerfile
     restart: always
     environment:
-      - MONGO_INITDB_DATABASE=backend-template
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: backend-template
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
     command: mongod --storageEngine wiredTiger --replSet rs0 --bind_ip_all --keyFile /etc/mongo-keyfile --quiet
     volumes:
       - mongo_data:/data/db
-    ports:
-      - "27017:27017"
     healthcheck:
       test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}) }" | mongosh -u ${MONGO_INITDB_ROOT_USERNAME:-admin} -p ${MONGO_INITDB_ROOT_PASSWORD:-password123} --authenticationDatabase admin --quiet
       interval: 10s
@@ -35,13 +35,10 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: backend-template_redis
     restart: always
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -54,17 +51,9 @@ services:
     build:
       context: .
       dockerfile: compose/backend/Dockerfile
-      target: development
-    container_name: backend-template_backend
     restart: always
-    env_file:
-      - .env
     ports:
       - "3000:3000"
-      - "9229:9229"
-    volumes:
-      - ./backend:/home/app/backend-template
-      - backend_node_modules:/home/app/backend-template/node_modules
     depends_on:
       mongo:
         condition: service_healthy
@@ -83,20 +72,9 @@ services:
     build:
       context: .
       dockerfile: compose/frontend/Dockerfile
-      target: development
-    container_name: backend-template_frontend
     restart: always
-    ports:
-      - "3001:3000"
-    volumes:
-      - ./frontend:/home/app/client
-      - frontend_node_modules:/home/app/client/node_modules
-    environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - app-network
-    stdin_open: true
-    tty: true
