@@ -146,8 +146,8 @@ docker build --target production -f compose/frontend/Dockerfile -t frontend:prod
 
 - Backend: `localhost:3000`
 - Frontend: `localhost:80`
-- MongoDB: `localhost:27017` (consider restricting in production)
-- Redis: `localhost:6379` (consider restricting in production)
+- MongoDB: Not exposed to host (internal network only)
+- Redis: Not exposed to host (internal network only)
 
 ## Volume Management
 

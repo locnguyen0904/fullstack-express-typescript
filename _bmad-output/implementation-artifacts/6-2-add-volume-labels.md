@@ -3,7 +3,7 @@ story_id: 6.2
 story_key: 6-2-add-volume-labels
 epic: 6
 title: Add Volume Labels and Metadata
-status: review
+status: done
 priority: HIGH
 ---
 

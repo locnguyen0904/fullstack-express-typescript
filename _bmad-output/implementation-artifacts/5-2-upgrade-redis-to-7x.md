@@ -3,7 +3,7 @@ story_id: 5.2
 story_key: 5-2-upgrade-redis-to-7x
 epic: 5
 title: Upgrade Redis to 7.x
-status: review
+status: done
 priority: CRITICAL
 ---
 

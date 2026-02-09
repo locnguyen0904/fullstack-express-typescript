@@ -3,7 +3,7 @@ story_id: 5.4
 story_key: 5-4-update-frontend-depends-on
 epic: 5
 title: Update Frontend Dependency to Health-Based Ordering
-status: review
+status: done
 priority: HIGH
 ---
 

@@ -1,7 +1,7 @@
 ---
 epic: 6
 title: Compose Configuration Refactoring
-status: pending
+status: done
 priority: HIGH
 stories: 3
 dependencies: Epic 5

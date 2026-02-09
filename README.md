@@ -13,7 +13,7 @@ Production-ready Express.js + TypeScript + MongoDB backend template with best pr
 | Runtime       | Node.js 24 + TypeScript 5                       |
 | Framework     | Express.js 5                                    |
 | Database      | MongoDB 8 + Mongoose                            |
-| Cache         | Redis 6                                         |
+| Cache         | Redis 7                                         |
 | Validation    | Zod 4                                           |
 | API Docs      | OpenAPI 3 (auto-generated)                      |
 | Auth          | JWT (access + refresh tokens, token revocation) |

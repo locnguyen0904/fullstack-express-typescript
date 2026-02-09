@@ -3,7 +3,7 @@ story_id: 5.1
 story_key: 5-1-add-redis-data-volume
 epic: 5
 title: Add Redis Data Volume for Persistence
-status: review
+status: done
 priority: CRITICAL
 ---
 

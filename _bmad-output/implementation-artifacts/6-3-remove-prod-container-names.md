@@ -3,7 +3,7 @@ story_id: 6.3
 story_key: 6-3-remove-prod-container-names
 epic: 6
 title: Remove Container Names from Production Services
-status: review
+status: done
 priority: HIGH
 ---
 

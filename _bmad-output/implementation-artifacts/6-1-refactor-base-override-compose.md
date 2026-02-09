@@ -3,7 +3,7 @@ story_id: 6.1
 story_key: 6-1-refactor-base-override-compose
 epic: 6
 title: Refactor to Base + Override Compose Pattern
-status: review
+status: done
 priority: HIGH
 ---
 
@@ -67,6 +67,7 @@ Base file reduced from 102 to 81 lines. Prod file reduced from 136 to 81 lines. 
 - `docker-compose.override.yml` (new - dev overrides)
 - `docker-compose.prod.yml` (rewritten - prod overrides only)
 - `DOCKER.md` (updated - architecture description and prod commands)
+- `.gitignore` (modified - added `.env.prod`)
 
 ## Change Log
 
