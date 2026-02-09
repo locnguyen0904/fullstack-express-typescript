@@ -1,5 +1,6 @@
 volumes:
   mongo_data:
+  redis_data:
 
 networks:
   app-network:
@@ -40,10 +41,12 @@ services:
         max-file: "3"
 
   redis:
-    image: redis:6.2.13-alpine
+    image: redis:7-alpine
     container_name: backend-template_redis_prod
     restart: always
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
     environment:
       - REDISCLI_AUTH=${REDIS_PASSWORD}
     healthcheck:
@@ -82,6 +85,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     networks:
       - app-network
     deploy:
@@ -109,7 +118,8 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - app-network
     deploy:

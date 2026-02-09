@@ -69,3 +69,11 @@ development_status:
   4-3-add-architectural-decision-records: done
   4-4-update-documentation: done
   epic-4-retrospective: optional
+
+  # Epic 5: Data Persistence and Reliability
+  epic-5: in-progress
+  5-1-add-redis-data-volume: review
+  5-2-upgrade-redis-to-7x: review
+  5-3-add-backend-healthcheck: review
+  5-4-update-frontend-depends-on: review
+  epic-5-retrospective: optional
