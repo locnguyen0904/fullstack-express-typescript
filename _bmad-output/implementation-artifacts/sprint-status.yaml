@@ -84,3 +84,18 @@ development_status:
   6-2-add-volume-labels: done
   6-3-remove-prod-container-names: done
   epic-6-retrospective: optional
+
+  # Epic 7: Production Security Hardening
+  epic-7: done
+  7-1-add-mongo-keyfile-gitignore-script: done
+  7-2-mount-mongo-keyfile-readonly: done
+  7-3-add-network-isolation: done
+  7-4-migrate-secrets: done
+  7-5-add-container-hardening: done
+  epic-7-retrospective: optional
+
+  # Epic 8: Production Reverse Proxy and SSL
+  epic-8: done
+  8-1-add-nginx-reverse-proxy: done
+  8-2-configure-ssl-tls: done
+  epic-8-retrospective: optional

@@ -30,6 +30,7 @@ services:
     env_file:
       - .env
     ports:
+      - "3000:3000"
       - "9229:9229"
     volumes:
       - ./backend:/home/app/backend-template

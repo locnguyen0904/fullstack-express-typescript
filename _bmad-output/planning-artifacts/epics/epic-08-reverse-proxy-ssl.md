@@ -1,7 +1,7 @@
 ---
 epic: 8
 title: Production Reverse Proxy and SSL
-status: pending
+status: done
 priority: MEDIUM
 stories: 2
 dependencies: None

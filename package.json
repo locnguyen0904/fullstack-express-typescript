@@ -12,7 +12,9 @@
     "frontend:build": "cd frontend && npm run build",
     "frontend:lint": "cd frontend && npm run lint",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "generate:mongo-key": "mkdir -p compose/mongo/keys && openssl rand -base64 756 > compose/mongo/keys/keyfile.local && chmod 400 compose/mongo/keys/keyfile.local",
+    "generate:ssl-cert": "mkdir -p compose/nginx/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout compose/nginx/ssl/key.pem -out compose/nginx/ssl/cert.pem -subj '/CN=localhost'"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",

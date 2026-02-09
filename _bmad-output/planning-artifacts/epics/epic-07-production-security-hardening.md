@@ -1,7 +1,7 @@
 ---
 epic: 7
 title: Production Security Hardening
-status: pending
+status: done
 priority: HIGH
 stories: 5
 dependencies: None

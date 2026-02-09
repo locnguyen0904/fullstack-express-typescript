@@ -8,10 +8,6 @@ volumes:
       com.backend-template.description: "Redis persistence data"
       com.backend-template.backup-priority: "medium"
 
-networks:
-  app-network:
-    driver: bridge
-
 services:
   mongo:
     build:
@@ -30,8 +26,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 5s
-    networks:
-      - app-network
 
   redis:
     image: redis:7-alpine
@@ -44,16 +38,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - app-network
 
   backend:
     build:
       context: .
       dockerfile: compose/backend/Dockerfile
     restart: always
-    ports:
-      - "3000:3000"
     depends_on:
       mongo:
         condition: service_healthy
@@ -65,8 +55,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
-    networks:
-      - app-network
 
   frontend:
     build:
@@ -76,5 +64,3 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    networks:
-      - app-network

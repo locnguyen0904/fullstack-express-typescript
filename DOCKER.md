@@ -6,7 +6,7 @@ This project uses multi-stage Dockerfiles to support both local development and 
 
 - **compose/backend/Dockerfile** - Multi-stage backend Dockerfile with `development` and `production` targets
 - **compose/frontend/Dockerfile** - Multi-stage frontend Dockerfile with `development` and `production` targets
-- **docker-compose.yml** - Base/shared configuration (images, healthchecks, networks, volumes)
+- **docker-compose.yml** - Base/shared configuration (images, healthchecks, volumes)
 - **docker-compose.override.yml** - Development overrides (auto-loaded with `docker compose up`)
 - **docker-compose.prod.yml** - Production overrides (resource limits, logging, prod targets)
 
@@ -54,10 +54,31 @@ docker compose down -v
 cp .env.prod.example .env.prod
 ```
 
-1. Edit `.env.prod` with your production values:
-   - Set strong passwords for MongoDB and Redis
+2. Edit `.env.prod` with your production values:
    - Set a secure JWT secret (at least 32 characters)
    - Update DATABASE_URL if using external database
+
+3. Generate MongoDB keyfile and SSL certificates:
+
+```bash
+npm run generate:mongo-key
+npm run generate:ssl-cert
+```
+
+> **Linux production note:** The MongoDB keyfile must be readable by the `mongodb` user (UID 999) inside the container. After generating, fix ownership:
+> ```bash
+> sudo chown 999:999 compose/mongo/keys/keyfile.local
+> ```
+> This is not required on Docker Desktop (macOS/Windows) which handles file permissions transparently.
+
+4. Create secret files for production passwords:
+
+```bash
+mkdir -p secrets
+echo "your-mongo-password" > secrets/mongo_root_password.txt
+echo "your-redis-password" > secrets/redis_password.txt
+chmod 600 secrets/*.txt
+```
 
 ### Start production services
 
@@ -144,10 +165,12 @@ docker build --target production -f compose/frontend/Dockerfile -t frontend:prod
 
 ### Production
 
-- Backend: `localhost:3000`
-- Frontend: `localhost:80`
-- MongoDB: Not exposed to host (internal network only)
-- Redis: Not exposed to host (internal network only)
+- Nginx (HTTPS): `localhost:443`
+- Nginx (HTTP → HTTPS redirect): `localhost:80`
+- Backend: Internal only (proxied via nginx at `/api/*`)
+- Frontend: Internal only (proxied via nginx at `/`)
+- MongoDB: Internal only (backend-network)
+- Redis: Internal only (backend-network)
 
 ## Volume Management
 
