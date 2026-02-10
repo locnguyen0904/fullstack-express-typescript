@@ -1,38 +1,41 @@
-volumes:
-  mongo_data:
-
 networks:
-  app-network:
+  frontend-network:
     driver: bridge
+  backend-network:
+    driver: bridge
+
+secrets:
+  mongo_root_password:
+    file: ./secrets/mongo_root_password.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
 
 services:
   mongo:
-    container_name: backend-template_mongo_prod
-    build:
-      context: .
-      dockerfile: compose/mongo/Dockerfile
-    restart: always
     environment:
-      - MONGO_INITDB_DATABASE=backend-template
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-    command: mongod --storageEngine wiredTiger --replSet rs0 --bind_ip_all --keyFile /etc/mongo-keyfile --quiet
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo_root_password
     volumes:
-      - mongo_data:/data/db
+      - ./compose/mongo/keys/keyfile.local:/etc/mongo-keyfile:ro
     healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}) }" | mongosh -u ${MONGO_INITDB_ROOT_USERNAME:-admin} -p ${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase admin --quiet
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}) }" | mongosh -u $${MONGO_INITDB_ROOT_USERNAME:-admin} -p "$$(cat /run/secrets/mongo_root_password)" --authenticationDatabase admin --quiet
       interval: 30s
       timeout: 10s
-      retries: 5
       start_period: 15s
-    networks:
-      - app-network
+    secrets:
+      - mongo_root_password
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     deploy:
       resources:
         limits:
           memory: 1G
+          cpus: "1.0"
         reservations:
           memory: 512M
+    networks:
+      - backend-network
     logging:
       driver: "json-file"
       options:
@@ -40,25 +43,26 @@ services:
         max-file: "3"
 
   redis:
-    image: redis:6.2.13-alpine
-    container_name: backend-template_redis_prod
-    restart: always
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
-    environment:
-      - REDISCLI_AUTH=${REDIS_PASSWORD}
+    command: sh -c 'redis-server --requirepass "$$(cat /run/secrets/redis_password)" --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$$(cat /run/secrets/redis_password) redis-cli ping"]
       interval: 30s
       timeout: 10s
-      retries: 5
-    networks:
-      - app-network
+    secrets:
+      - redis_password
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     deploy:
       resources:
         limits:
           memory: 512M
+          cpus: "0.5"
         reservations:
           memory: 128M
+    networks:
+      - backend-network
     logging:
       driver: "json-file"
       options:
@@ -67,29 +71,31 @@ services:
 
   backend:
     build:
-      context: .
-      dockerfile: compose/backend/Dockerfile
       target: production
-    image: backend-template:latest
-    container_name: backend-template_backend_prod
-    restart: always
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-locnguyen}/backend-template-backend:latest
     env_file:
       - .env.prod
-    ports:
-      - "3000:3000"
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - app-network
+    healthcheck:
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
     deploy:
       resources:
         limits:
           memory: 512M
+          cpus: "1.0"
         reservations:
           memory: 256M
+    networks:
+      - frontend-network
+      - backend-network
     logging:
       driver: "json-file"
       options:
@@ -98,26 +104,67 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: compose/frontend/Dockerfile
       target: production
       args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
-    image: frontend-template:latest
-    container_name: backend-template_frontend_prod
-    restart: always
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - app-network
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-locnguyen}/backend-template-frontend:latest
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
     deploy:
       resources:
         limits:
           memory: 256M
+          cpus: "0.5"
         reservations:
           memory: 128M
+    networks:
+      - frontend-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: always
+    ports:
+      - "443:443"
+    volumes:
+      - ./compose/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./compose/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: "0.25"
+        reservations:
+          memory: 64M
+    networks:
+      - frontend-network
     logging:
       driver: "json-file"
       options:

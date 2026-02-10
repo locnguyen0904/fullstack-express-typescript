@@ -55,6 +55,7 @@ backend/dump/*
 backend/test
 
 .env
+.env.prod
 
 backend/logs/*
 !backend/logs/.gitkeep
@@ -63,7 +64,12 @@ backend/build
 frontend/build
 
 compose/mongo/keys/*
-!compose/mongo/keys/keyfile.local
+
+# Production secrets
+secrets/
+
+# SSL certificates
+compose/nginx/ssl/
 
 # BMAD caches / temp / runtime files
 _bmad/cache/
@@ -84,6 +90,9 @@ flattened-codebase.xml
 
 # Claude Code
 .claude/
+
+# Codex
+.codex/
 
 # BMAD
 _bmad/

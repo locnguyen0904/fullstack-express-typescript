@@ -69,3 +69,39 @@ development_status:
   4-3-add-architectural-decision-records: done
   4-4-update-documentation: done
   epic-4-retrospective: optional
+
+  # Epic 5: Data Persistence and Reliability
+  epic-5: done
+  5-1-add-redis-data-volume: done
+  5-2-upgrade-redis-to-7x: done
+  5-3-add-backend-healthcheck: done
+  5-4-update-frontend-depends-on: done
+  epic-5-retrospective: optional
+
+  # Epic 6: Compose Configuration Refactoring
+  epic-6: done
+  6-1-refactor-base-override-compose: done
+  6-2-add-volume-labels: done
+  6-3-remove-prod-container-names: done
+  epic-6-retrospective: optional
+
+  # Epic 7: Production Security Hardening
+  epic-7: done
+  7-1-add-mongo-keyfile-gitignore-script: done
+  7-2-mount-mongo-keyfile-readonly: done
+  7-3-add-network-isolation: done
+  7-4-migrate-secrets: done
+  7-5-add-container-hardening: done
+  epic-7-retrospective: optional
+
+  # Epic 8: Production Reverse Proxy and SSL
+  epic-8: done
+  8-1-add-nginx-reverse-proxy: done
+  8-2-configure-ssl-tls: done
+  epic-8-retrospective: optional
+
+  # Epic 9: CI/CD Pipeline with GitHub Actions
+  epic-9: in-progress
+  9-1-create-github-actions-cd-workflow-with-ghcr: done
+  9-2-add-vps-deployment-via-ssh: backlog
+  epic-9-retrospective: optional

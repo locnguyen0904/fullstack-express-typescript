@@ -12,7 +12,8 @@
     "frontend:build": "cd frontend && npm run build",
     "frontend:lint": "cd frontend && npm run lint",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "generate:mongo-key": "mkdir -p compose/mongo/keys && openssl rand -base64 756 > compose/mongo/keys/keyfile.local && chmod 400 compose/mongo/keys/keyfile.local"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
