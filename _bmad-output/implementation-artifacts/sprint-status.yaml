@@ -99,3 +99,9 @@ development_status:
   8-1-add-nginx-reverse-proxy: done
   8-2-configure-ssl-tls: done
   epic-8-retrospective: optional
+
+  # Epic 9: CI/CD Pipeline with GitHub Actions
+  epic-9: in-progress
+  9-1-create-github-actions-cd-workflow-with-ghcr: done
+  9-2-add-vps-deployment-via-ssh: backlog
+  epic-9-retrospective: optional
