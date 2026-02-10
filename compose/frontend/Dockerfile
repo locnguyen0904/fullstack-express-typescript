@@ -51,7 +51,7 @@ FROM nginx:1.27-alpine AS production
 # COPY compose/nginx/conf.d/frontend.conf /etc/nginx/conf.d/default.conf
 
 # Copy built assets from builder
-COPY --from=builder /home/app/client/dist /usr/share/nginx/html
+COPY --from=builder /home/app/client/build /usr/share/nginx/html
 
 # Add labels
 LABEL maintainer="Loc Nguyen"
