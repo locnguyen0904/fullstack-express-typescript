@@ -91,5 +91,8 @@ flattened-codebase.xml
 # Claude Code
 .claude/
 
+# Codex
+.codex/
+
 # BMAD
 _bmad/

@@ -136,7 +136,6 @@ services:
     image: nginx:1.27-alpine
     restart: always
     ports:
-      - "80:80"
       - "443:443"
     volumes:
       - ./compose/nginx/conf.d:/etc/nginx/conf.d:ro
