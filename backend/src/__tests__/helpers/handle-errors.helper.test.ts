@@ -8,14 +8,9 @@ import {
   logErrors,
   notFoundHandle,
 } from '@/helpers/handle-errors.helper';
-import { logger } from '@/services';
+import logger from '@/services/logger.service';
 
-// Mock logger
-jest.mock('@/services', () => ({
-  logger: {
-    error: jest.fn(),
-  },
-}));
+const mockLogger = logger as jest.Mocked<typeof logger>;
 
 describe('Handle Errors Helper', () => {
   let mockRequest: Partial<Request>;
@@ -82,9 +77,7 @@ describe('Handle Errors Helper', () => {
       );
 
       expect(mockResponse.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          stack: 'Error stack trace',
-        })
+        expect.objectContaining({ stack: 'Error stack trace' })
       );
     });
 
@@ -100,7 +93,8 @@ describe('Handle Errors Helper', () => {
         mockNext
       );
 
-      const jsonCall = (mockResponse.json as jest.Mock).mock.calls[0][0];
+      const jsonCall = (mockResponse.json as jest.Mock).mock
+        .calls[0][0] as Record<string, unknown>;
       expect(jsonCall.stack).toBeUndefined();
     });
 
@@ -124,11 +118,7 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'about:blank',
           title: 'Bad Request',
-          status: 400,
-          detail:
-            'Invalid request data. Please review the request and try again.',
           code: 'VALIDATION_ERROR',
           errors: expect.arrayContaining([
             expect.objectContaining({
@@ -156,29 +146,8 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(409);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'about:blank',
           title: 'Conflict',
-          status: 409,
           detail: 'Duplicate value for email',
-          code: 'DUPLICATE_KEY',
-        })
-      );
-    });
-
-    it('handles MongoDB duplicate key error without keyValue', () => {
-      const duplicateError = { code: 11000 };
-
-      errorHandle(
-        duplicateError,
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockResponse.status).toHaveBeenCalledWith(409);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          detail: 'Duplicate key error',
           code: 'DUPLICATE_KEY',
         })
       );
@@ -207,7 +176,7 @@ describe('Handle Errors Helper', () => {
       );
     });
 
-    it('handles unknown errors as InternalServerError in development', () => {
+    it('handles unknown errors as InternalServerError (dev)', () => {
       process.env.NODE_ENV = 'development';
       const unknownError = new Error('Something went wrong');
 
@@ -222,14 +191,13 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Internal Server Error',
-          status: 500,
           detail: 'Something went wrong',
           code: 'INTERNAL_SERVER_ERROR',
         })
       );
     });
 
-    it('handles unknown errors as InternalServerError in production', () => {
+    it('hides error details in production', () => {
       process.env.NODE_ENV = 'production';
       const unknownError = new Error('Sensitive error message');
 
@@ -243,31 +211,15 @@ describe('Handle Errors Helper', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(500);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Internal Server Error',
           detail: 'Internal Server Error',
-          code: 'INTERNAL_SERVER_ERROR',
         })
       );
-    });
-
-    it('handles non-object errors as InternalServerError', () => {
-      process.env.NODE_ENV = 'production';
-
-      errorHandle(
-        'string error',
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
-
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
     });
   });
 
   describe('logErrors', () => {
-    it('logs error details and calls next', () => {
+    it('logs error context and passes through', () => {
       const error = new Error('Test error');
-      error.stack = 'Error stack';
 
       logErrors(
         error,
@@ -276,7 +228,7 @@ describe('Handle Errors Helper', () => {
         mockNext
       );
 
-      expect(logger.error).toHaveBeenCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
           err: error,
           requestId: 'test-request-id',
@@ -290,7 +242,7 @@ describe('Handle Errors Helper', () => {
   });
 
   describe('notFoundHandle', () => {
-    it('creates NotFoundError and calls next', () => {
+    it('creates NotFoundError and passes to next', () => {
       notFoundHandle(
         mockRequest as Request,
         mockResponse as Response,

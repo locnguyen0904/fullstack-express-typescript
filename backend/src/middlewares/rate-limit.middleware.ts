@@ -30,7 +30,15 @@ const keyGenerator = (req: Request): string => {
   return req.user?.sub ?? req.ip ?? 'unknown';
 };
 
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+const noopMiddleware = (_req: Request, _res: unknown, next: () => void) =>
+  next();
+
 const createLimiter = (options: Partial<Options>) => {
+  // Skip rate limiting in test environment
+  if (isTestEnv) return noopMiddleware;
+
   return rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
