@@ -47,6 +47,9 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
     needs: backend
 
     steps:
@@ -74,7 +77,7 @@ jobs:
           severity: "CRITICAL,HIGH"
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: "trivy-results.sarif"
