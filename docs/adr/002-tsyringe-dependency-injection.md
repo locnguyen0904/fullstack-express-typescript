@@ -13,20 +13,22 @@ Replace `typedi` with `tsyringe` (maintained by Microsoft).
 
 ### Migration Mapping
 
-| TypeDI | tsyringe |
-|--------|----------|
-| `@Service()` | `@singleton()` |
-| `Container.get(Class)` | `container.resolve(Class)` |
+| TypeDI                             | tsyringe                               |
+| ---------------------------------- | -------------------------------------- |
+| `@Service()`                       | `@singleton()`                         |
+| `Container.get(Class)`             | `container.resolve(Class)`             |
 | `import { Service } from 'typedi'` | `import { singleton } from 'tsyringe'` |
 
 ## Consequences
 
 **Positive:**
+
 - Actively maintained by Microsoft
 - Same decorator-based DI pattern (minimal migration effort)
 - Compatible with `reflect-metadata` and existing TypeScript decorator config
 - Supports `@injectable()` (transient) and `@singleton()` scopes
 
 **Negative:**
+
 - API differences require a one-time migration of all DI references
 - tsyringe is more explicit about singleton vs transient scope (TypeDI defaults to singleton)

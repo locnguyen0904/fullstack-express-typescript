@@ -14,12 +14,14 @@ Replace `bcrypt` with `argon2` (Argon2id variant) for all password hashing opera
 ## Consequences
 
 **Positive:**
+
 - Follows OWASP's primary recommendation
 - Better resistance to GPU/ASIC brute-force attacks via memory-hard design
 - Configurable memory, time, and parallelism parameters
 - Native Node.js addon with prebuilt binaries
 
 **Negative:**
+
 - Existing bcrypt-hashed passwords would need rehashing on login (migration concern for downstream projects)
 - Slightly larger dependency (includes native binaries)
 

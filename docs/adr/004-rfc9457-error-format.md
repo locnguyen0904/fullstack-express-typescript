@@ -36,11 +36,13 @@ Error responses are sent with `Content-Type: application/problem+json` as specif
 ## Consequences
 
 **Positive:**
+
 - Industry-standard error format improves API client interoperability
 - `type` field enables machine-readable error categorization
 - `instance` field aids debugging by identifying the exact request path
 - Proper content type enables client-side content negotiation
 
 **Negative:**
+
 - Breaking change for existing API consumers expecting the old format
 - Slightly more verbose than minimal `{ message, code }` format

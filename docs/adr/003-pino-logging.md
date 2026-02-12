@@ -22,20 +22,22 @@ Replace `winston` + `morgan` with `pino` + `pino-http`.
 
 ```typescript
 // Winston (old)
-logger.error('Redis error', { error: err.message });
+logger.error("Redis error", { error: err.message });
 
 // Pino (new)
-logger.error({ error: err.message }, 'Redis error');
+logger.error({ error: err.message }, "Redis error");
 ```
 
 ## Consequences
 
 **Positive:**
+
 - ~5x faster throughput (important under load)
 - JSON-first output — better for log aggregation (ELK, Datadog, etc.)
 - Smaller dependency footprint (removed winston, winston-daily-rotate-file, morgan)
 - Built-in request ID correlation via pino-http
 
 **Negative:**
+
 - Different argument order (`logger.error(obj, msg)` vs `logger.error(msg, obj)`)
 - No built-in file rotation (use OS-level log rotation or external transport)
