@@ -1,4 +1,4 @@
-import { Queue } from 'bullmq';
+import { type ConnectionOptions, Queue } from 'bullmq';
 
 import { getRedisConnection } from '../index';
 
@@ -19,7 +19,7 @@ export function createEmailQueue(): Queue<EmailJobData> | null {
   if (!connection) return null;
 
   emailQueue = new Queue<EmailJobData>('email', {
-    connection,
+    connection: connection as ConnectionOptions,
     defaultJobOptions: {
       attempts: 3,
       backoff: {

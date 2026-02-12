@@ -14,7 +14,7 @@ export default class UserController {
   }
 
   async findOne(req: Request, res: Response): Promise<void> {
-    const user = await this.userService.findById(req.params.id);
+    const user = await this.userService.findById(req.params.id as string);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -33,7 +33,10 @@ export default class UserController {
   }
 
   async update(req: Request, res: Response): Promise<void> {
-    const user = await this.userService.update(req.params.id, req.body);
+    const user = await this.userService.update(
+      req.params.id as string,
+      req.body
+    );
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -41,7 +44,7 @@ export default class UserController {
   }
 
   async delete(req: Request, res: Response): Promise<void> {
-    const user = await this.userService.softDelete(req.params.id);
+    const user = await this.userService.softDelete(req.params.id as string);
     if (!user) {
       throw new NotFoundError('User not found');
     }

@@ -17,7 +17,7 @@ export default class ExampleController {
   }
 
   async findOne(req: Request, res: Response): Promise<void> {
-    const example = await this.exampleService.findById(req.params.id);
+    const example = await this.exampleService.findById(req.params.id as string);
     if (!example) {
       throw new NotFoundError('Example not found');
     }
@@ -36,7 +36,10 @@ export default class ExampleController {
   }
 
   async update(req: Request, res: Response): Promise<void> {
-    const example = await this.exampleService.update(req.params.id, req.body);
+    const example = await this.exampleService.update(
+      req.params.id as string,
+      req.body
+    );
     if (!example) {
       throw new NotFoundError('Example not found');
     }
@@ -44,7 +47,9 @@ export default class ExampleController {
   }
 
   async delete(req: Request, res: Response): Promise<void> {
-    const example = await this.exampleService.softDelete(req.params.id);
+    const example = await this.exampleService.softDelete(
+      req.params.id as string
+    );
     if (!example) {
       throw new NotFoundError('Example not found');
     }
