@@ -1,3 +1,19 @@
 # Trivy vulnerability ignore list
-# Add CVE IDs here to suppress known acceptable vulnerabilities
-# Example: CVE-2023-12345
+# These CVEs exist in npm's bundled dependencies inside the node:24-alpine base image.
+# They are NOT in our application code or project dependencies.
+# They will be resolved when the Node.js team publishes an updated base image.
+
+# @isaacs/brace-expansion 5.0.0 - DoS via unbounded brace range expansion (in npm's glob)
+CVE-2026-25547
+
+# glob 10.4.5 / 11.0.3 - Command Injection via malicious filenames (in npm internals)
+CVE-2025-64756
+
+# tar 7.5.1 - Arbitrary file overwrite via unsanitized linkpaths (in npm internals)
+CVE-2026-23745
+
+# tar 7.5.1 - Arbitrary file overwrite via Unicode path collision (in npm internals)
+CVE-2026-23950
+
+# tar 7.5.1 - Arbitrary file creation via path traversal in hardlink (in npm internals)
+CVE-2026-24842
