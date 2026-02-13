@@ -1,6 +1,6 @@
 import { Edit, required, SimpleForm, TextInput } from "react-admin";
 
-import { validateEmail } from "../../validates";
+import { validateEmail } from "@/validates";
 
 const UserTitle = ({ record }) => {
   return <span>User {record ? record.username : ""}</span>;

@@ -62,6 +62,8 @@ module.exports = [
             ["^react", "^react-dom"],
             // External packages
             ["^@?\\w"],
+            // Alias imports (@/)
+            ["^@/"],
             // Relative imports
             ["^\\."],
           ],
