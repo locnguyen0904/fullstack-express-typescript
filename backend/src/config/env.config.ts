@@ -34,6 +34,7 @@ interface IConfig {
   redis: IRedisConfig;
   env: string;
   port?: number;
+  logLevel: string;
 }
 
 const config: IConfig = {
@@ -60,6 +61,7 @@ const config: IConfig = {
   },
   env: env.NODE_ENV,
   port: env.PORT,
+  logLevel: env.LOG_LEVEL || 'info',
 };
 
 export default config;

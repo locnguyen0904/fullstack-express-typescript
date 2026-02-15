@@ -1,11 +1,12 @@
 import pino from 'pino';
 
-const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
-const isTest = process.env.NODE_ENV === 'test';
-const isDev = process.env.NODE_ENV !== 'production' && !isTest;
+import config from '@/config/env.config';
+
+const isTest = config.env === 'test';
+const isDev = config.env !== 'production' && !isTest;
 
 const logger = pino({
-  level: isTest ? 'silent' : LOG_LEVEL,
+  level: isTest ? 'silent' : config.logLevel,
   ...(isDev && {
     transport: {
       target: 'pino-pretty',

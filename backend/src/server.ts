@@ -4,11 +4,13 @@ import http from 'http';
 
 import { container } from 'tsyringe';
 
+import config from '@/config/env.config';
+
 import app from './app';
 import { initializeJobs, shutdownJobs } from './jobs';
 import { logger, mongoose, RedisService } from './services';
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = config.port || 3000;
 const SHUTDOWN_TIMEOUT = 30000;
 
 async function gracefulShutdown(
@@ -17,11 +19,15 @@ async function gracefulShutdown(
 ): Promise<void> {
   logger.info(`${signal} received: starting graceful shutdown`);
 
-  server.close(() => {
-    logger.info('HTTP server closed');
-  });
-
   try {
+    await new Promise<void>((resolve, reject) => {
+      server.close((err) => {
+        if (err) return reject(err);
+        logger.info('HTTP server closed');
+        resolve();
+      });
+    });
+
     await Promise.all([
       shutdownJobs(),
       mongoose.disconnectDB(),
