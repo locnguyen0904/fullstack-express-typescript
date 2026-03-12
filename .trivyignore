@@ -17,3 +17,21 @@ CVE-2026-23950
 
 # tar 7.5.1 - Arbitrary file creation via path traversal in hardlink (in npm internals)
 CVE-2026-24842
+
+# tar 7.5.x - File overwrite via drive-relative symlink traversal (in npm internals)
+CVE-2026-31802
+
+# tar 7.5.7 - Arbitrary file read/write via malicious archive hardlink creation (in npm internals)
+CVE-2026-26960
+
+# tar 7.5.7 - Hardlink path traversal via drive-relative linkpath (in npm internals)
+CVE-2026-29786
+
+# minimatch 10.1.2 / 9.x / 5.x / 3.x - DoS via specially crafted glob patterns (in npm internals)
+CVE-2026-26996
+
+# minimatch 10.1.2 / 9.x / 5.x / 3.x - DoS via unbounded recursive backtracking (in npm internals)
+CVE-2026-27903
+
+# minimatch 10.1.2 / 9.x / 5.x / 3.x - DoS via catastrophic backtracking in glob expressions (in npm internals)
+CVE-2026-27904

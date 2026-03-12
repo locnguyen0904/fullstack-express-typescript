@@ -332,10 +332,11 @@ backend/src/
 
 Key decisions are documented in `docs/adr/`:
 
-| ADR | Decision |
-|-----|----------|
-| [001](adr/001-argon2-password-hashing.md) | Argon2 for password hashing |
+| ADR                                             | Decision                          |
+| ----------------------------------------------- | --------------------------------- |
+| [001](adr/001-argon2-password-hashing.md)       | Argon2 for password hashing       |
 | [002](adr/002-tsyringe-dependency-injection.md) | tsyringe for dependency injection |
-| [003](adr/003-pino-logging.md) | Pino for logging |
-| [004](adr/004-rfc9457-error-format.md) | RFC 9457 error format |
-| [005](adr/005-opentelemetry-observability.md) | OpenTelemetry for observability |
+| [003](adr/003-pino-logging.md)                  | Pino for logging                  |
+| [004](adr/004-rfc9457-error-format.md)          | RFC 9457 error format             |
+| [005](adr/005-opentelemetry-observability.md)   | OpenTelemetry for observability   |
+| [006](adr/006-mongodb-replica-set.md)           | MongoDB Replica Set requirement   |

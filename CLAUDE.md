@@ -1,4 +1,7 @@
-# Claude AI Instructions
+# CLAUDE.md — AI Coding Assistant Context
+
+> This file provides context for AI coding assistants (Antigravity, Cursor, GitHub Copilot,
+> Claude, Gemini, etc.) working on this repository. Read this before making any changes.
 
 ## Project Overview
 
@@ -40,16 +43,18 @@ cd backend && npm run prettier:fix && npm run lint:fix
 
 ### Key Rules
 
-1. **Controllers** - standalone classes, inject Service via tsyringe (`@inject()` + `@singleton()`)
-2. **Services** - standalone classes, inject Repository, never access `req`/`res`
-3. **Repositories** - extend `Repository<T>` base class from `@/core`
+1. **Controllers** — standalone classes, inject Service via tsyringe (`@inject()` + `@singleton()`)
+2. **Services** — standalone classes, inject Repository, never access `req`/`res`
+3. **Repositories** — extend `Repository<T>` base class from `@/core`
 4. **All inputs** validated with Zod at route level
 5. **All routes** registered in OpenAPI registry
 6. **All DI constructor params** must use `@inject(Class)` (tsx/esbuild doesn't emit decorator metadata)
+7. **Path aliases** — use `@/` for imports, never relative `../../../` beyond one level
+8. **Environment variables** — all env vars declared and validated in `backend/src/config/env.config.ts`; never access `process.env` directly elsewhere
 
 ## File Structure (`backend/src`)
 
-```
+```text
 api/              # Feature modules
 ├── {resource}/
 │   ├── {resource}.controller.ts
@@ -123,8 +128,20 @@ registry.registerPath({
 
 ## Do NOT
 
-- Write YAML/JSON for OpenAPI manually
-- Use callbacks or `.then()` - always `async/await`
+- Write YAML/JSON for OpenAPI manually (Zod schemas auto-generate docs)
+- Use callbacks or `.then()` — always `async/await`
 - Access `req`/`res` in Services
 - Put business logic in Controllers
-- Skip input validation
+- Skip input validation (every route with body/params/query MUST use `validate()`)
+- Use `console.log`/`console.error` — always use the shared `logger` from `@/services`
+- Access `process.env` directly — always use `config` from `@/config`
+- Use relative imports `../../../` — always use `@/` path alias
+- Call Repository methods from Controllers directly (must go through Service)
+- Create new modules manually — always use `npm run generate` (Plop)
+- Export Mongoose model directly from Service — use Repository layer
+
+## Coverage Gate
+
+The test suite enforces a **minimum 60% line coverage** threshold (Jest `coverageThreshold`).
+CI runs `npm run test:coverage` — any PR dropping below 60% lines will fail the build.
+Always run `npm run test:coverage` locally before pushing.

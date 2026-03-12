@@ -37,7 +37,13 @@ export default class AuthController {
         throw new UnAuthorizedError('No refresh token provided');
       }
 
-      const refreshToken = decrypt(encryptedToken);
+      let refreshToken: string;
+      try {
+        refreshToken = decrypt(encryptedToken);
+      } catch {
+        throw new UnAuthorizedError('Invalid refresh token');
+      }
+
       const tokens = await this.authService.refreshAuth(refreshToken);
 
       res.cookie('refreshToken', encrypt(tokens.refresh.token), {
